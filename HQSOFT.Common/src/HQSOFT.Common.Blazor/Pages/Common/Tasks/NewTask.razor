@@ -1,0 +1,135 @@
+﻿@page "/Common/HQTasks/edit/{Id}"
+@*@using HQSOFT.Common.Blazor.Components*@
+@using HQSOFT.Common.Blazor.Components
+@using HQSOFT.Common.HQTasks;
+@using Volo.Abp.AspNetCore.Components.Messages;
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
+@using Volo.Abp.BlazoriseUI.Components
+@using Volo.Abp.Http.Client;
+@inherits CommonComponentBase
+@inject IHQTasksAppService HQTasksAppService
+@inject IUiMessageService UiMessageService
+@inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
+@inject NavigationManager NavigationManager
+
+
+@* ************************* PAGE HEADER ************************* *@
+<PageHeader Title="@L["HQTasks"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
+
+</PageHeader>
+<Row>
+    <Column ColumnSize="ColumnSize.Is3">
+        @* ************************* HQSOFTLeftSideForm ************************* *@
+        <HQSOFTLeftSideForm Value="@EditingHQTaskId"></HQSOFTLeftSideForm>
+    </Column>
+
+    <Column ColumnSize="ColumnSize.Is9">
+        <Card>
+            <CardBody>
+                <Validations @ref="@EditingHQTaskValidations"
+                             Mode="ValidationMode.Auto"
+                             Model="@EditingHQTask"
+                             ValidateOnLoad="false">
+                    <Validation>
+                        <Field>
+                            <FieldLabel>@L["Subject"] *</FieldLabel>
+                            <TextEdit @bind-Text="@EditingHQTask.Subject">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation>
+                        <Field>
+                            <FieldLabel>@L["Project"] *</FieldLabel>
+                            <TextEdit @bind-Text="@EditingHQTask.Project">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Field>
+                        <FieldLabel>@L["Status"]</FieldLabel>
+                        <Select TValue="StatusTask" @bind-SelectedValue="@EditingHQTask.Status">
+                            @foreach (var itemValue in Enum.GetValues(typeof(StatusTask)))
+                            {
+                                <SelectItem TValue="StatusTask" Value="@((StatusTask) itemValue)">
+                                    @L[$"Enum:StatusTask.{((StatusTask) itemValue).ToString("d")}"]
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+
+
+                    <Field>
+                        <FieldLabel>@L["Priority"]</FieldLabel>
+                        <Select TValue="PriorityTask" @bind-SelectedValue="@EditingHQTask.Priority">
+                            @foreach (var itemValue in Enum.GetValues(typeof(PriorityTask)))
+                            {
+                                <SelectItem TValue="PriorityTask" Value="@((PriorityTask) itemValue)">
+                                    @L[$"Enum:PriorityTask.{((PriorityTask) itemValue).ToString("d")}"]
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+
+
+                    <Validation>
+                        <Field>
+                            <FieldLabel>@L["ExpectedStartDate"]</FieldLabel>
+                            <DateEdit TValue="DateTime" InputMode="DateInputMode.DateTime" @bind-Date="@EditingHQTask.ExpectedStartDate">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </DateEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation>
+                        <Field>
+                            <FieldLabel>@L["ExpectedEndDate"]</FieldLabel>
+                            <DateEdit TValue="DateTime" InputMode="DateInputMode.DateTime" @bind-Date="@EditingHQTask.ExpectedEndDate">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </DateEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation>
+                        <Field>
+                            <FieldLabel>@L["ExpectedTime"]</FieldLabel>
+                            <NumericPicker TValue="double" @bind-Value="@EditingHQTask.ExpectedTime">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </NumericPicker>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation>
+                        <Field>
+                            <FieldLabel>@L["Process"]</FieldLabel>
+                            <NumericPicker TValue="double" @bind-Value="@EditingHQTask.Process">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </NumericPicker>
+                        </Field>
+                    </Validation>
+
+                </Validations>
+            </CardBody>
+        </Card>
+    </Column>
+</Row>
+

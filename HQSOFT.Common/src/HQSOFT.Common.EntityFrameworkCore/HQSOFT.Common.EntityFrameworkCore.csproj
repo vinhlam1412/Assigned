@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <RootNamespace>HQSOFT.Common</RootNamespace>
+    <UserSecretsId>c98e260b-012f-444d-a80d-6207d80e68f8</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Volo.Abp.EntityFrameworkCore" Version="7.3.0" />
+    <PackageReference Include="Volo.Abp.Identity.EntityFrameworkCore" Version="7.3.0" />
+    <ProjectReference Include="..\HQSOFT.Common.Domain\HQSOFT.Common.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

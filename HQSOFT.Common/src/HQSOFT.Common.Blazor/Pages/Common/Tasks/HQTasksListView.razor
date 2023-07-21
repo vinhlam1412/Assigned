@@ -1,0 +1,132 @@
+@page "/Common/HQTasks"
+
+
+
+@attribute [Authorize(CommonPermissions.HQTasks.Default)]
+@using HQSOFT.Common.Permissions;
+@using global::HQSOFT.Common.HQTasks
+@using global::HQSOFT.Common.Localization
+@using global::HQSOFT.Common.Shared
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@using Microsoft.AspNetCore.Components.Web
+@using Blazorise
+@using Blazorise.Components
+@using Blazorise.DataGrid
+@using Volo.Abp.BlazoriseUI
+@using Volo.Abp.BlazoriseUI.Components
+@using Volo.Abp.ObjectMapping
+@using Volo.Abp.AspNetCore.Components.Messages
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
+@using Microsoft.AspNetCore.Components
+@using Volo.Abp.AspNetCore.Components.Web
+@using Volo.Abp.Http.Client
+@inherits CommonComponentBase
+@inject IHQTasksAppService HQTasksAppService
+@inject IUiMessageService UiMessageService
+@inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
+@inject NavigationManager NavigationManager
+
+
+
+@* ************************* PAGE HEADER ************************* *@
+<PageHeader Title="@L["HQTasks"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
+
+</PageHeader>
+
+@* ************************* SEARCH ************************* *@
+<Card>
+    <CardBody>
+        <Form id="HQTaskSearchForm" class="mb-3">
+            <Addons>
+                <Addon AddonType="AddonType.Body">
+                    <TextEdit @bind-Text="@Filter.FilterText"
+                              Autofocus="true"
+                              Placeholder="@L["Search"]">
+                    </TextEdit>
+                </Addon>
+                <Addon AddonType="AddonType.End">
+                    <SubmitButton Form="HQTaskSearchForm" Clicked="GetHQTasksAsync">
+                        <Icon Name="IconName.Search" Class="me-1"></Icon>@L["Search"]
+                    </SubmitButton>
+                </Addon>
+            </Addons>
+        </Form>
+    </CardBody>
+</Card>
+
+@* ************************* DATA GRID ************************* *@
+<Card>
+    <CardBody>
+        <DataGrid TItem="HQTaskDto"
+                  Data="HQTaskList"
+                  ReadData="OnDataGridReadAsync"
+                  TotalItems="TotalCount"
+                  ShowPager="true"
+                  Responsive="true"
+                  PageSize="PageSize">
+            <DataGridColumns>
+                <DataGridColumn TItem="HQTaskDto"
+                                Field="Subject"
+                                Caption="@L["Subject"]">
+                    <DisplayTemplate>
+                        @{
+                            <a class="d-block text-left" href="javascript:;" @onclick="() => GoToEditPage(context)">@((context as HQTaskDto).Subject)</a>
+                        }
+                    </DisplayTemplate>
+                </DataGridColumn>
+
+                <DataGridColumn TItem="HQTaskDto"
+                                Field="Project"
+                                Caption="@L["Project"]">
+                </DataGridColumn>
+
+                <DataGridColumn TItem="HQTaskDto"
+                                Field="Status"
+                                Caption="@L["Status"]">
+                    <DisplayTemplate>
+                        @L[$"Enum:StatusTask.{context.Status}"]
+                    </DisplayTemplate>
+                </DataGridColumn>
+
+
+                <DataGridColumn TItem="HQTaskDto"
+                                Field="Priority"
+                                Caption="@L["Priority"]">
+                    <DisplayTemplate>
+                        @L[$"Enum:PriorityTask.{context.Priority}"]
+                    </DisplayTemplate>
+                </DataGridColumn>
+
+
+                <DataGridColumn TItem="HQTaskDto"
+                                Field="ExpectedStartDate"
+                                Caption="@L["ExpectedStartDate"]">
+                    <DisplayTemplate>
+                        @context.ExpectedStartDate.ToShortDateString()
+                    </DisplayTemplate>
+                </DataGridColumn>
+
+                <DataGridColumn TItem="HQTaskDto"
+                                Field="ExpectedEndDate"
+                                Caption="@L["ExpectedEndDate"]">
+                    <DisplayTemplate>
+                        @context.ExpectedEndDate.ToShortDateString()
+                    </DisplayTemplate>
+                </DataGridColumn>
+
+                <DataGridColumn TItem="HQTaskDto"
+                                Field="ExpectedTime"
+                                Caption="@L["ExpectedTime"]">
+                </DataGridColumn>
+
+                <DataGridColumn TItem="HQTaskDto"
+                                Field="Process"
+                                Caption="@L["Process"]">
+                </DataGridColumn>
+
+            </DataGridColumns>
+        </DataGrid>
+    </CardBody>
+</Card>
+

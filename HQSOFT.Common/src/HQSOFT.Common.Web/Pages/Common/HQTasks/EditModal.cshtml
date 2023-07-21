@@ -1,0 +1,50 @@
+@page
+@using Microsoft.AspNetCore.Mvc.Localization
+@using HQSOFT.Common.Localization
+@using HQSOFT.Common.Web.Pages.Common.HQTasks
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
+@using HQSOFT.Common.HQTasks;
+@using System.Globalization
+@inject IHtmlLocalizer<CommonResource> L
+@model EditModalModel
+@{
+    Layout = null;
+}
+
+<form data-ajaxForm="true" asp-page="/Common/HQTasks/EditModal" autocomplete="off">
+    <abp-modal id="HQTaskEditModal">
+        <abp-modal-header title="@L["Update"].Value"></abp-modal-header>
+
+        <abp-modal-body>
+                    <abp-input asp-for="Id" />
+                    <abp-input asp-for="HQTask.ConcurrencyStamp" hidden="true" suppress-label="true"/>
+                    
+
+            <abp-input asp-for="HQTask.Subject"   />
+
+
+            <abp-input asp-for="HQTask.Project"   />
+
+
+            <abp-select asp-for="HQTask.Status"   />
+
+
+            <abp-select asp-for="HQTask.Priority"   />
+
+            <abp-input asp-for="HQTask.ExpectedStartDate" value="@(Model.HQTask.ExpectedStartDate.ToString("yyyy-MM-dd"))" type="date" />
+
+            <abp-input asp-for="HQTask.ExpectedEndDate" value="@(Model.HQTask.ExpectedEndDate.ToString("yyyy-MM-dd"))" type="date" />
+
+
+            <abp-input asp-for="HQTask.ExpectedTime"   />
+
+
+            <abp-input asp-for="HQTask.Process"   />
+
+                    
+                
+        </abp-modal-body>
+
+        <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)"></abp-modal-footer>
+    </abp-modal>
+</form>

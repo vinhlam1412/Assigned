@@ -1,0 +1,392 @@
+<abp-page [title]="'Common::HQAssigneds' | abpLocalization">
+  <abp-page-toolbar-container class="col">
+    <div class="text-lg-end pt-2">
+      <button
+        class="btn btn-primary btn-sm mx-2"
+        type="button"
+        [disabled]="isExportToExcelBusy"
+        (click)="exportToExcel()"
+      >
+        {{ 'Common::ExportToExcel' | abpLocalization }}
+      </button>
+
+      <button
+        *abpPermission="'Common.HQAssigneds.Create'"
+        class="btn btn-primary btn-sm"
+        type="button"
+        (click)="create()"
+      >
+        <i class="fa fa-plus me-1" aria-hidden="true"></i>
+        {{ 'Common::NewHQAssigned' | abpLocalization }}
+      </button>
+    </div>
+  </abp-page-toolbar-container>
+
+  <abp-advanced-entity-filters localizationSourceName="Common" [list]="list">
+    <abp-advanced-entity-filters-form>
+      <form #filterForm (keyup.enter)="list.get()">
+        <div class="row">
+          <div class="col-12 col-sm-auto">
+            <div class="mb-3">
+              <label class="form-label" for="idParentFilter">
+                {{ 'Common::IDParent' | abpLocalization }}
+              </label>
+
+              <input
+                id="idParentFilter"
+                class="form-control"
+                [(ngModel)]="filters.idParent"
+                [ngModelOptions]="{ standalone: true }"
+              />
+            </div>
+          </div>
+          <div class="col-12 col-sm-auto">
+            <div class="mb-3">
+              <label class="form-label" for="minCompleteby">
+                {{ 'Common::MinCompleteby' | abpLocalization }}
+              </label>
+
+              <div class="input-group" validationTarget>
+                <input
+                  id="minCompleteby"
+                  class="form-control"
+                  #minCompletebyInput
+                  #minCompletebyDatepicker="ngbDatepicker"
+                  name="minCompleteby"
+                  ngbDatepicker
+                  container="body"
+                  readonly
+                  (click)="minCompletebyDatepicker.toggle()"
+                  (keyup.space)="minCompletebyDatepicker.toggle()"
+                  [(ngModel)]="filters.completebyMin"
+                  [ngModelOptions]="{ standalone: true }"
+                />
+                <div *ngIf="minCompletebyInput.value" class="input-group-append">
+                  <button
+                    class="btn btn-link px-2"
+                    type="button"
+                    [title]="'AbpUi::Clear' | abpLocalization"
+                    (click)="
+                      minCompletebyDatepicker.writeValue(null);
+                      minCompletebyDatepicker.manualDateChange(null, true)
+                    "
+                  >
+                    <i class="fa fa-times" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-sm-auto">
+            <div class="mb-3">
+              <label class="form-label" for="maxCompleteby">
+                {{ 'Common::MaxCompleteby' | abpLocalization }}
+              </label>
+
+              <div class="input-group" validationTarget>
+                <input
+                  id="maxCompleteby"
+                  class="form-control"
+                  #maxCompletebyInput
+                  #maxCompletebyDatepicker="ngbDatepicker"
+                  name="maxCompleteby"
+                  ngbDatepicker
+                  readonly
+                  (click)="maxCompletebyDatepicker.toggle()"
+                  (keyup.space)="maxCompletebyDatepicker.toggle()"
+                  [(ngModel)]="filters.completebyMax"
+                  [ngModelOptions]="{ standalone: true }"
+                />
+                <div *ngIf="maxCompletebyInput.value" class="input-group-append">
+                  <button
+                    class="btn btn-link px-2"
+                    type="button"
+                    [title]="'AbpUi::Clear' | abpLocalization"
+                    (click)="
+                      maxCompletebyDatepicker.writeValue(null);
+                      maxCompletebyDatepicker.manualDateChange(null, true)
+                    "
+                  >
+                    <i class="fa fa-times" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-auto">
+            <div class="mb-3">
+              <label class="form-label" for="priorityFilter">
+                {{ 'Common::Priority' | abpLocalization }}
+              </label>
+
+              <select
+                id="priorityFilter"
+                class="form-select form-control"
+                [(ngModel)]="filters.priority"
+                [ngModelOptions]="{ standalone: true }"
+              >
+                <option [ngValue]="null"></option>
+                <option
+                  *ngFor="let option of priorityAssignOptions; trackBy: track.by('value')"
+                  [ngValue]="option.value"
+                >
+                  {{ 'Common::Enum:PriorityAssign.' + option.value | abpLocalization }}
+                </option>
+              </select>
+            </div>
+          </div>
+          <div class="col-12 col-sm-auto">
+            <div class="mb-3">
+              <label class="form-label" for="commentFilter">
+                {{ 'Common::Comment' | abpLocalization }}
+              </label>
+
+              <input
+                id="commentFilter"
+                class="form-control"
+                [(ngModel)]="filters.comment"
+                [ngModelOptions]="{ standalone: true }"
+              />
+            </div>
+          </div>
+          <div class="col-12 col-sm-auto">
+            <div class="mb-3">
+              <label class="form-label" for="identityUsersFilter">
+                {{ 'Common::IdentityUser' | abpLocalization }}
+              </label>
+              <abp-lookup-typeahead
+                cid="identityUsersFilter"
+                displayNameProp="email"
+                [getFn]="service.getIdentityUserLookup"
+                [(ngModel)]="filters.identityUserId"
+                [ngModelOptions]="{ standalone: true }"
+              ></abp-lookup-typeahead>
+            </div>
+          </div>
+
+          <div class="col-12 col-sm-auto align-self-end mb-3">
+            <div class="row">
+              <div class="col-6 col-sm-auto d-grid">
+                <button type="button" class="btn btn-outline-primary" (click)="clearFilters()">
+                  <span>{{ 'AbpUi::Clear' | abpLocalization }}</span>
+                </button>
+              </div>
+              <div class="col-6 col-sm-auto d-grid">
+                <button type="button" class="btn btn-primary" (click)="list.get()">
+                  <span>{{ 'AbpUi::Refresh' | abpLocalization }}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </abp-advanced-entity-filters-form>
+  </abp-advanced-entity-filters>
+
+  <div class="card">
+    <div class="card-body">
+      <ngx-datatable [rows]="data.items" [count]="data.totalCount" [list]="list" default>
+        <ngx-datatable-column
+          [name]="'AbpUi::Actions' | abpLocalization"
+          [maxWidth]="150"
+          [width]="150"
+          [sortable]="false"
+        >
+          <ng-template let-row="row" let-i="rowIndex" ngx-datatable-cell-template>
+            <div ngbDropdown container="body" class="d-inline-block">
+              <button
+                class="btn btn-primary btn-sm dropdown-toggle"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                ngbDropdownToggle
+              >
+                <i class="fa fa-cog me-1" aria-hidden="true"></i>
+                {{ 'AbpUi::Actions' | abpLocalization }}
+              </button>
+
+              <div ngbDropdownMenu>
+                <button
+                  ngbDropdownItem
+                  *abpPermission="'Common.HQAssigneds.Edit'"
+                  (click)="update(row)"
+                >
+                  {{ 'AbpUi::Edit' | abpLocalization }}
+                </button>
+
+                <button
+                  ngbDropdownItem
+                  *abpPermission="'Common.HQAssigneds.Delete'"
+                  (click)="delete(row)"
+                >
+                  {{ 'AbpUi::Delete' | abpLocalization }}
+                </button>
+              </div>
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          name="{{ 'Common::IDParent' | abpLocalization }}"
+          prop="hqAssigned.idParent"
+        >
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            {{ row.hqAssigned.idParent }}
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          name="{{ 'Common::Completeby' | abpLocalization }}"
+          prop="hqAssigned.completeby"
+        >
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            {{ row.hqAssigned.completeby | date }}
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          name="{{ 'Common::Priority' | abpLocalization }}"
+          prop="hqAssigned.priority"
+        >
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            {{
+              row.hqAssigned.priority !== null
+                ? ('Common::Enum:PriorityAssign.' + row.hqAssigned.priority | abpLocalization)
+                : ''
+            }}
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          name="{{ 'Common::Comment' | abpLocalization }}"
+          prop="hqAssigned.comment"
+        >
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            {{ row.hqAssigned.comment }}
+          </ng-template>
+        </ngx-datatable-column>
+      </ngx-datatable>
+    </div>
+  </div>
+</abp-page>
+
+<abp-modal [busy]="isModalBusy" [(visible)]="isModalOpen">
+  <ng-template #abpHeader>
+    <h3>
+      {{ (selected ? 'AbpUi::Edit' : 'Common::NewHQAssigned') | abpLocalization }}
+    </h3>
+  </ng-template>
+
+  <ng-template #abpBody>
+    <form [formGroup]="form" id="hqassigned" (ngSubmit)="submitForm()" validateOnSubmit>
+      <ul ngbNav #nav="ngbNav" class="nav-tabs">
+        <li ngbNavItem>
+          <a ngbNavLink>
+            {{ 'HQAssigned' | abpLocalization }}
+          </a>
+          <ng-template ngbNavContent>
+            <div class="mt-2 fade-in-top">
+              <div class="mb-3">
+                <label class="form-label" for="hqassigned-idparent">
+                  {{ 'Common::IDParent' | abpLocalization }}
+                </label>
+
+                <input
+                  id="hqassigned-idparent"
+                  formControlName="idParent"
+                  class="form-control"
+                  autofocus
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="hqassigned-completeby">
+                  {{ 'Common::Completeby' | abpLocalization }}
+                </label>
+
+                <div class="input-group" validationTarget>
+                  <input
+                    readonly
+                    id="hqassigned-completeby"
+                    formControlName="completeby"
+                    class="form-control"
+                    ngbDatepicker
+                    #completebyInput
+                    #completebyDatepicker="ngbDatepicker"
+                    (click)="completebyDatepicker.open()"
+                    (keyup.space)="completebyDatepicker.open()"
+                  />
+                  <div *ngIf="completebyInput.value" class="input-group-append">
+                    <button
+                      class="btn btn-link px-2"
+                      type="button"
+                      [title]="'AbpUi::Clear' | abpLocalization"
+                      (click)="
+                        completebyDatepicker.writeValue(null);
+                        completebyDatepicker.manualDateChange(null, true)
+                      "
+                    >
+                      <i class="fa fa-times" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="hqassigned-priority">
+                  {{ 'Common::Priority' | abpLocalization }}
+                </label>
+
+                <select
+                  id="hqassigned-priority"
+                  formControlName="priority"
+                  class="form-select form-control"
+                >
+                  <option [ngValue]="null"></option>
+                  <option
+                    *ngFor="let option of priorityAssignOptions; trackBy: track.by('key')"
+                    [ngValue]="option.value"
+                  >
+                    {{ 'Common::Enum:PriorityAssign.' + option.value | abpLocalization }}
+                  </option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="hqassigned-comment">
+                  {{ 'Common::Comment' | abpLocalization }}
+                </label>
+
+                <textarea id="hqassigned-comment" formControlName="comment" class="form-control">
+                </textarea>
+              </div>
+            </div>
+          </ng-template>
+        </li>
+
+        <li ngbNavItem>
+          <a ngbNavLink>
+            {{ 'IdentityUsers' | abpLocalization }}
+            <span *ngIf="this.form.controls['identityUserIds']">
+              ({{ this.form.controls['identityUserIds'].value?.length }})
+            </span>
+          </a>
+          <ng-template ngbNavContent>
+            <abp-lookup-typeahead-mtm
+              cid="hqassigned-identity-users"
+              formControlName="identityUserIds"
+              displayNameProp="email"
+              lookupNameProp="displayName"
+              [getFn]="service.getIdentityUserLookup"
+              [editingData]="selected?.identityUsers"
+            ></abp-lookup-typeahead-mtm>
+          </ng-template>
+        </li>
+      </ul>
+      <div [ngbNavOutlet]="nav"></div>
+    </form>
+  </ng-template>
+
+  <ng-template #abpFooter>
+    <button type="button" class="btn btn-secondary" abpClose>
+      {{ 'AbpUi::Cancel' | abpLocalization }}
+    </button>
+
+    <abp-button iconClass="fa fa-check" buttonType="submit" formName="hqassigned">
+      {{ 'AbpUi::Save' | abpLocalization }}
+    </abp-button>
+  </ng-template>
+</abp-modal>
