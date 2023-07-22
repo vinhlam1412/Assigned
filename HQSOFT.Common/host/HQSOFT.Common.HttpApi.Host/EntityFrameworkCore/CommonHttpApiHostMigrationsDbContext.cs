@@ -21,7 +21,7 @@ public class CommonHttpApiHostMigrationsDbContext : AbpDbContext<CommonHttpApiHo
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ConfigureCommon();
-        modelBuilder.Entity<ExtraPropertyDictionary>().HasNoKey();
+        modelBuilder.ConfigureIdentity();
         modelBuilder.ConfigureAuditLogging();
         modelBuilder.ConfigurePermissionManagement();
         modelBuilder.ConfigureSettingManagement();
