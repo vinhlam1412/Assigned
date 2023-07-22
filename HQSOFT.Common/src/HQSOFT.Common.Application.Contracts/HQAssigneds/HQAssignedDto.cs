@@ -7,7 +7,7 @@ namespace HQSOFT.Common.HQAssigneds
 {
     public class HQAssignedDto : FullAuditedEntityDto<Guid>, IHasConcurrencyStamp
     {
-        public Guid IDParent { get; set; }
+        public string? IDParent { get; set; }
         public DateTime Completeby { get; set; }
         public PriorityAssign Priority { get; set; }
         public string? Comment { get; set; }

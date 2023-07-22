@@ -82,7 +82,10 @@
                     </DisplayTemplate>
                 </DataGridEntityActionsColumn>
                
-
+              <DataGridColumn TItem="HQAssignedWithNavigationPropertiesDto"
+                      Field="HQAssigned.IDParent"
+                      Caption="@L["IDParent"]">
+              </DataGridColumn>
 
               <DataGridColumn TItem="HQAssignedWithNavigationPropertiesDto"
                       Field="HQAssigned.Completeby"
@@ -132,6 +135,16 @@
                             ValidateOnLoad="false">
                      <TabPanel Name="hQAssigned-create-tab">
                     
+                    <Validation>
+                        <Field>
+                            <FieldLabel>@L["IDParent"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewHQAssigned.IDParent"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
 
 
                     <Validation>
@@ -256,6 +269,16 @@
                             ValidateOnLoad="false">
                      <TabPanel Name="hQAssigned-edit-tab">
                     
+                    <Validation>
+                        <Field>
+                            <FieldLabel>@L["IDParent"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingHQAssigned.IDParent"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
 
 
                     <Validation>

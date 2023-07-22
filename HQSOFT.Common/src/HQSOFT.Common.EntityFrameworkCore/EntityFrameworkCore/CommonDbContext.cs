@@ -7,6 +7,7 @@ using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Identity.EntityFrameworkCore;
 using Volo.Abp.Identity;
+using System.Reflection.Emit;
 
 namespace HQSOFT.Common.EntityFrameworkCore;
 
@@ -37,7 +38,7 @@ public class CommonDbContext : AbpDbContext<CommonDbContext>, ICommonDbContext, 
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        base.OnModelCreating(builder);
+        base.OnModelCreating(builder);      
         builder.ConfigureIdentity();
         builder.ConfigureCommon();
     }

@@ -18,6 +18,7 @@ using Volo.Abp.Content;
 using Volo.Abp.Authorization;
 using Volo.Abp.Caching;
 using Microsoft.Extensions.Caching.Distributed;
+using HQSOFT.Common.Shared;
 
 namespace HQSOFT.Common.HQAssigneds
 {
@@ -148,10 +149,16 @@ namespace HQSOFT.Common.HQAssigneds
                 Token = token
             };
         }
-
-        public async Task<HQAssignedDto> GetParentAsync(Guid id)
+        public virtual async Task<HQAssignedDto> GetParentAsync(string id)
         {
-            return ObjectMapper.Map<HQAssigned, HQAssignedDto>(await _hQAssignedRepository.FindAsync(x => x.IDParent == id));
+            // Use the FindAsync method of _hQAssignedRepository to retrieve the HQAssigned entity with an IDParent that matches the given id.
+            HQAssigned entity = await _hQAssignedRepository.FindAsync(x => x.IDParent.ToLower() == id.ToLower());
+
+            // Use the ObjectMapper to map the retrieved entity to a HQAssignedDto object.
+            HQAssignedDto dto = ObjectMapper.Map<HQAssigned, HQAssignedDto>(entity);
+
+            // Return the mapped HQAssignedDto object.
+            return dto;
         }
     }
 }

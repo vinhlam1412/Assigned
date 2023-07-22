@@ -25,5 +25,6 @@ public class CommonApplicationAutoMapperProfile : Profile
         CreateMap<HQAssignedWithNavigationProperties, HQAssignedWithNavigationPropertiesDto>();
         CreateMap<IdentityUser, IdentityUserDto>();
         CreateMap<IdentityUser, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Email));
+        CreateMap<IdentityUserDto, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Email));
     }
 }

@@ -10,7 +10,6 @@
 @using Microsoft.Extensions.Localization
 @using Microsoft.AspNetCore.Components.Web
 @inherits CommonComponentBase
-@inject IIdentityUserAppService IdentityUserAppService
 @inject IHQAssignedsAppService HQAssignedsAppService
 @inject IUiMessageService UiMessageService
 @inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
@@ -69,8 +68,9 @@
 
     </CardBody>
 </Card>
-@* ************************* CREATE MODAL ************************* *@
-<Modal @ref="CreateHQAssignedModal" Closing="@CreateHQAssignedModal.CancelClosingModalWhenFocusLost">
+
+@* ************************* EDIT MODAL ************************* *@
+<Modal @ref="EditHQAssignedModal" Closing="@EditHQAssignedModal.CancelClosingModalWhenFocusLost">
     <ModalContent Centered="true">
         <Form id="CreateHQAssignedForm">
             <ModalHeader>
@@ -84,52 +84,10 @@
                         <Tab Name="identityUsers-create-tab">@L["IdentityUsers"].Value</Tab>
                     </Items>
                     <Content>
-                        <Validations @ref="@NewHQAssignedValidations"
+                        <Validations @ref="@EditingHQAssignedValidations"
                                      Mode="ValidationMode.Auto"
-                                     Model="@NewHQAssigned"
+                                     Model="@EditHQAssignedModal"
                                      ValidateOnLoad="false">
-                            <TabPanel Name="hQAssigned-create-tab">
-
-
-
-                                <Validation>
-                                    <Field>
-                                        <FieldLabel>@L["Completeby"]</FieldLabel>
-                                        <DateEdit TValue="DateTime" InputMode="DateInputMode.DateTime" @bind-Date="@NewHQAssigned.Completeby">
-                                            <Feedback>
-                                                <ValidationError />
-                                            </Feedback>
-                                        </DateEdit>
-                                    </Field>
-                                </Validation>
-
-
-                                <Field>
-                                    <FieldLabel>@L["Priority"]</FieldLabel>
-                                    <Select TValue="PriorityAssign" @bind-SelectedValue="@NewHQAssigned.Priority">
-                                        @foreach (var itemValue in Enum.GetValues(typeof(PriorityAssign)))
-                                        {
-                                            <SelectItem TValue="PriorityAssign" Value="@((PriorityAssign) itemValue)">
-                                                @L[$"Enum:PriorityAssign.{((PriorityAssign) itemValue).ToString("d")}"]
-                                            </SelectItem>
-                                        }
-                                    </Select>
-                                </Field>
-
-
-                                <Validation>
-                                    <Field>
-                                        <FieldLabel>@L["Comment"]</FieldLabel>
-                                        <MemoEdit @bind-Text="@NewHQAssigned.Comment">
-                                            <Feedback>
-                                                <ValidationError />
-                                            </Feedback>
-                                        </MemoEdit>
-                                    </Field>
-                                </Validation>
-
-
-                            </TabPanel>
                             <TabPanel Name="identityUsers-create-tab">
 
                                 <Row>
@@ -142,8 +100,10 @@
                                                           TextField="@((item) => item.DisplayName)"
                                                           ValueField="@((item) => item.Id.ToString())"
                                                           SearchChanged="@GetIdentityUserLookupAsync"
-                                                          @bind-SelectedValue="@SelectedIdentityUserId"
-                                                          @bind-SelectedText="@SelectedIdentityUserText"
+                                                          SelectionMode="AutocompleteSelectionMode.Multiple"
+                                                          FreeTyping
+                                                          @bind-SelectedValues="@SelectedIdentityUserId"
+                                                          @bind-SelectedTexts="@SelectedIdentityUserText"
                                                           Placeholder="&#8212;" />
                                         </Field>
                                     </Column>
@@ -177,6 +137,46 @@
                                     </Table>
                                 }
                             </TabPanel>
+                            <TabPanel Name="hQAssigned-create-tab">
+                                <Validation>
+                                    <Field>
+                                        <FieldLabel>@L["Completeby"]</FieldLabel>
+                                        <DateEdit TValue="DateTime" InputMode="DateInputMode.DateTime" @bind-Date="@EditingHQAssigned.Completeby">
+                                            <Feedback>
+                                                <ValidationError />
+                                            </Feedback>
+                                        </DateEdit>
+                                    </Field>
+                                </Validation>
+
+
+                                <Field>
+                                    <FieldLabel>@L["Priority"]</FieldLabel>
+                                    <Select TValue="PriorityAssign" @bind-SelectedValue="@EditingHQAssigned.Priority">
+                                        @foreach (var itemValue in Enum.GetValues(typeof(PriorityAssign)))
+                                        {
+                                            <SelectItem TValue="PriorityAssign" Value="@((PriorityAssign) itemValue)">
+                                                @L[$"Enum:PriorityAssign.{((PriorityAssign) itemValue).ToString("d")}"]
+                                            </SelectItem>
+                                        }
+                                    </Select>
+                                </Field>
+
+
+                                <Validation>
+                                    <Field>
+                                        <FieldLabel>@L["Comment"]</FieldLabel>
+                                        <MemoEdit @bind-Text="@EditingHQAssigned.Comment">
+                                            <Feedback>
+                                                <ValidationError />
+                                            </Feedback>
+                                        </MemoEdit>
+                                    </Field>
+                                </Validation>
+
+
+                            </TabPanel>
+                           
                         </Validations>
                     </Content>
                 </Tabs>
@@ -191,126 +191,6 @@
         </Form>
     </ModalContent>
 </Modal>
-@* ************************* CREATE MODAL ************************* *@
-@*<Modal @ref="CreateHQAssigmentModal" Closing="@CreateHQAssigmentModal.CancelClosingModalWhenFocusLost">
-    <ModalContent Centered="true">
-        <Form id="CreateHQAssigmentForm">
-            <ModalHeader>
-                <ModalTitle>@L["Add Todo"]</ModalTitle>
-                <CloseButton Clicked="CloseCreateHQAssigmentModalAsync" />
-            </ModalHeader>
-            <ModalBody>
-                <Tabs SelectedTab="@SelectedCreateTab" SelectedTabChanged="@OnSelectedCreateTabChanged">                
-                    <Content>
-                <Validations @ref="@NewHQAssigmentValidations"
-                            Mode="ValidationMode.Auto"
-                            Model="@NewHQAssigment"
-                            ValidateOnLoad="false">
-
-                     <TabPanel Name="hQAssigment-create-tab">
-                                <Row>
-                                    <Column ColumnSize="ColumnSize.Is9">
-                                        <Field>
-
-                                            <Autocomplete Data="@IdentityUsers"
-                                                          TItem="LookupDto<Guid>"
-                                                          TValue="string"
-                                                          TextField="@((item) => item.DisplayName)"
-                                                          ValueField="@((item) => item.Id.ToString())"
-                                                          SearchChanged="@GetIdentityUserLookupAsync"
-                                                          @bind-SelectedValue="@SelectedIdentityUserId"
-                                                          @bind-SelectedText="@SelectedIdentityUserText"
-                                                          Placeholder="&#8212;" />
-                                            </Field>
-                                            </Column>
-
-                                            <Column ColumnSize="ColumnSize.Is3">
-                                        <Button Color="Color.Info" TextColor="TextColor.White" Size="Size.Small" Clicked="AddIdentityUser">
-                                            <Icon class="fa fa-plus"></Icon> @L["Add"]
-                                            </Button>
-                                            </Column>
-                                </Row>
-                                @if (SelectedIdentityUsers.Any())
-                                {
-                                    <Table striped-rows="true" responsive-sm="true" class="mt-2">
-                                        <TableHeader>
-                                            <TableHeaderCell><Span class="float-start">@L["Email"]</Span></TableHeaderCell>
-                                        </TableHeader>
-                                        <TableBody>
-                                            @foreach (var identityUser in SelectedIdentityUsers)
-                                            {
-                                                <TableRow>
-                                                    <TableRowCell><Span class="float-start">@identityUser.DisplayName</Span></TableRowCell>
-                                                    <TableRowCell>
-                                                        <span class="btn btn-danger btn-sm float-end"
-                                                      @onclick="() => SelectedIdentityUsers.RemoveAll(s => s.Id == identityUser.Id)">
-                                                            <Icon Class="fa fa-trash"></Icon>
-                                                        </span>
-                                                    </TableRowCell>
-                                                </TableRow>
-                                            }
-                                        </TableBody>
-                                    </Table>
-                                }
-                    <Validation>
-                        <Field>
-                            <FieldLabel>@L["Completeby"]</FieldLabel>
-                            <DateEdit TValue="DateTime" InputMode="DateInputMode.DateTime" @bind-Date="@NewHQAssigment.Completeby" >
-                               <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </DateEdit>
-                        </Field>
-                    </Validation>
-
-
-                    <Field>
-                        <FieldLabel>@L["Priority"]</FieldLabel>
-                        <Select TValue="PriorityAssign" @bind-SelectedValue="@NewHQAssigment.Priority" >
-                            @foreach (var itemValue in Enum.GetValues(typeof(PriorityAssign)))
-                            {
-                                <SelectItem TValue="PriorityAssign" Value="@((PriorityAssign) itemValue)">
-                                    @L[$"Enum:PriorityAssign.{((PriorityAssign) itemValue).ToString("d")}"]
-                                </SelectItem>
-                            }
-                        </Select>
-                    </Field>
-
-
-                    <Validation>
-                        <Field>
-                            <FieldLabel>@L["Comment"]</FieldLabel>
-                            <MemoEdit @bind-Text="@NewHQAssigment.Comment"  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </MemoEdit>
-                        </Field>
-                    </Validation>
-                               
-                    </TabPanel>
-                </Validations>
-                        <Field Horizontal>
-                            <FieldBody ColumnSize="ColumnSize.Is12">
-                                Selected Values: @string.Join(',', SelectedUserId)
-                            </FieldBody>
-                            <FieldBody ColumnSize="ColumnSize.Is12">
-                                Selected Texts: @(SelectedUserText == null ? null : string.Join(',', SelectedUserText))
-                            </FieldBody>
-                        </Field>
-                    </Content>
-                </Tabs>
-            </ModalBody>
-            <ModalFooter>
-                <Button Color="Color.Secondary"
-                        Clicked="CloseCreateHQAssigmentModalAsync">
-                    @L["Cancel"]
-                </Button>
-                <SubmitButton Form="CreateHQAssigmentForm" Clicked="CreateHQAssigmentAsync" />
-            </ModalFooter>
-        </Form>
-    </ModalContent>
-</Modal>*@
 
 <style>
     .title {

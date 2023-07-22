@@ -4,6 +4,7 @@ using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.PermissionManagement.EntityFrameworkCore;
 using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.Identity.EntityFrameworkCore;
+using Volo.Abp.Data;
 
 namespace HQSOFT.Common.EntityFrameworkCore;
 
@@ -20,7 +21,7 @@ public class CommonHttpApiHostMigrationsDbContext : AbpDbContext<CommonHttpApiHo
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ConfigureCommon();
-        modelBuilder.ConfigureIdentity();
+        modelBuilder.Entity<ExtraPropertyDictionary>().HasNoKey();
         modelBuilder.ConfigureAuditLogging();
         modelBuilder.ConfigurePermissionManagement();
         modelBuilder.ConfigureSettingManagement();

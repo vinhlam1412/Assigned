@@ -19,7 +19,7 @@ public class CommonMenuContributor : IMenuContributor
         var moduleMenu = AddModuleMenuItem(context);
         AddMenuItemHQTasks(context, moduleMenu);
 
-        AddMenuItemHQAssigneds(context, moduleMenu);
+        //AddMenuItemHQAssigneds(context, moduleMenu);
     }
 
     private static async Task ConfigureMainMenuAsync(MenuConfigurationContext context)

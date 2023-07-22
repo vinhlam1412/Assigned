@@ -26,7 +26,7 @@ namespace HQSOFT.Common.HQAssigneds
 
         public async Task<HQAssigned> CreateAsync(
         List<Guid> identityUserIds,
-        Guid iDParent, DateTime completeby, PriorityAssign priority, string comment)
+        string iDParent, DateTime completeby, PriorityAssign priority, string comment)
         {
             Check.NotNull(completeby, nameof(completeby));
             Check.NotNull(priority, nameof(priority));
@@ -44,7 +44,7 @@ namespace HQSOFT.Common.HQAssigneds
         public async Task<HQAssigned> UpdateAsync(
             Guid id,
             List<Guid> identityUserIds,
-        Guid iDParent, DateTime completeby, PriorityAssign priority, string comment, [CanBeNull] string concurrencyStamp = null
+        string iDParent, DateTime completeby, PriorityAssign priority, string comment, [CanBeNull] string concurrencyStamp = null
         )
         {
             Check.NotNull(completeby, nameof(completeby));

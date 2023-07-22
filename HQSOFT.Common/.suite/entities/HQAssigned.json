@@ -18,9 +18,9 @@
   "CreateTests": true,
   "Properties": [
     {
-      "Id": "51013826-2b14-4b99-8547-88401e6f85b2",
+      "Id": "f031ec94-3d5d-4f4d-9709-424ca7639bb4",
       "Name": "IDParent",
-      "Type": "Guid",
+      "Type": "string",
       "EnumType": "",
       "EnumNamespace": "",
       "EnumAngularImport": "shared/enums",

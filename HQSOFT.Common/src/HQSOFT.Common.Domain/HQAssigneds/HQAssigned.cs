@@ -14,7 +14,8 @@ namespace HQSOFT.Common.HQAssigneds
 {
     public class HQAssigned : FullAuditedAggregateRoot<Guid>
     {
-        public virtual Guid IDParent { get; set; }
+        [CanBeNull]
+        public virtual string? IDParent { get; set; }
 
         public virtual DateTime Completeby { get; set; }
 
@@ -30,7 +31,7 @@ namespace HQSOFT.Common.HQAssigneds
 
         }
 
-        public HQAssigned(Guid id, Guid iDParent, DateTime completeby, PriorityAssign priority, string comment)
+        public HQAssigned(Guid id, string iDParent, DateTime completeby, PriorityAssign priority, string comment)
         {
 
             Id = id;

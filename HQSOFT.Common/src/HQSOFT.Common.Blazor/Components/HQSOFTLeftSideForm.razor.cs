@@ -3,9 +3,11 @@ using HQSOFT.Common.HQAssigneds;
 using HQSOFT.Common.HQTasks;
 using HQSOFT.Common.Shared;
 using Microsoft.AspNetCore.Components;
+using Newtonsoft.Json.Linq;
 using Nito.AsyncEx;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,36 +31,32 @@ namespace HQSOFT.Common.Blazor.Components
         private string CurrentSorting { get; set; } = string.Empty;
         private int TotalCount { get; set; }
         private HQAssignedCreateDto NewHQAssigned { get; set; }
-        private Validations NewHQAssignedValidations { get; set; } = new();
-        private Validations NewHQShareValidations { get; set; } = new();
 
-        private Modal CreateHQShareModal { get; set; } = new();
+        private HQAssignedUpdateDto EditingHQAssigned { get; set; }
 
-        private Modal CreateHQAssignedModal { get; set; } = new();
+        private Validations EditingHQAssignedValidations { get; set; } = new();
+        private Guid EditingHQAssignedId { get; set; }
 
-        private HQAssignedUpdateDto EditingHQAssigment { get; set; }
+        private Modal EditHQAssignedModal { get; set; } = new();
 
-        private Guid EditingHQAssigmentId { get; set; }
-        
         private GetHQAssignedsInput Filter { get; set; }
 
-        protected string SelectedCreateTab = "hQAssigment-create-tab";
+        protected string SelectedCreateTab = "hQAssigned-create-tab";
 
-        protected string SelectedCreateTab2 = "hQShare-create-tab";
+        protected string SelectedEditTab = "identityUsers-create-tab";
         private IReadOnlyList<LookupDto<Guid>> HQTasksCollection { get; set; } = new List<LookupDto<Guid>>();
 
 
-        public Guid TaskId { get; set; }
+        public Guid ParentId { get; set; }
 
-        private List<LookupDto<Guid>> SelectedUsers { get; set; } = new List<LookupDto<Guid>>();
-        private string SelectedIdentityUserId { get; set; }
+        private List<string> SelectedIdentityUserId { get; set; }
 
-        private string SelectedIdentityUserText { get; set; }
+        private List<string> SelectedIdentityUserText { get; set; }
 
         private List<LookupDto<Guid>> SelectedIdentityUsers { get; set; } = new List<LookupDto<Guid>>();
 
         [Parameter]
-        public Guid Value { get; set; }
+        public string Value { get; set; }
 
 
         //[Parameter]
@@ -69,7 +67,7 @@ namespace HQSOFT.Common.Blazor.Components
         public HQSOFTLeftSideForm()
         {
             NewHQAssigned = new HQAssignedCreateDto();
-            EditingHQAssigment = new HQAssignedUpdateDto();
+            EditingHQAssigned = new HQAssignedUpdateDto();
             Filter = new GetHQAssignedsInput
             {
                 MaxResultCount = PageSize,
@@ -82,14 +80,17 @@ namespace HQSOFT.Common.Blazor.Components
         protected override async Task OnInitializedAsync()
         {
 
-            if (Value != Guid.Empty)
-            { 
-                TaskId = Value;
-            }
-            if (TaskId != Guid.Empty)
+            if (Value != null && Value.Length > 0)
             {
-                NewHQAssigned.IDParent = TaskId;
+                ParentId = Guid.Parse(Value);
+            }
+
+            //Set IDParent for Assigned from Parent existed
+            if (ParentId != Guid.Empty)
+            {
+                EditingHQAssigned.IDParent = Value;
             };
+            SelectedIdentityUserId = new List<string>();
         }
         private async Task GetHQAssigmentsAsync()
         {
@@ -104,8 +105,8 @@ namespace HQSOFT.Common.Blazor.Components
 
         private async Task OpenCreateHQAssignedModalAsync()
          {
-            //Truyền vào idTask để lấy assingment xem đã tồn tại chưa
-            var hQAssigment = await HQAssignedsAppService.GetParentAsync(TaskId);
+            //Truyền vào ParentID để lấy assingment xem đã tồn tại chưa
+            var hQAssigment = await HQAssignedsAppService.GetParentAsync(Value);
             
             //Tồn tại
             if (hQAssigment != null)
@@ -115,24 +116,24 @@ namespace HQSOFT.Common.Blazor.Components
                 // HQTask 
                 // List user
                 var hQAssigmentDetail = await HQAssignedsAppService.GetWithNavigationPropertiesAsync(hQAssigment.Id);
-            
 
-            //Lấy Id của Assignment
-            EditingHQAssigmentId = hQAssigmentDetail.HQAssigned.Id;
 
-            //Lấy Assignment để edit
-            EditingHQAssigment = ObjectMapper.Map<HQAssignedDto, HQAssignedUpdateDto>(hQAssigmentDetail.HQAssigned);
+                //Lấy Id của Assignment
+                EditingHQAssignedId = hQAssigmentDetail.HQAssigned.Id;
+
+                //Lấy Assignment để edit
+                EditingHQAssigned = ObjectMapper.Map<HQAssignedDto, HQAssignedUpdateDto>(hQAssigmentDetail.HQAssigned);
 
                 //Map NewHQAssigment từ Update sang Create
-                NewHQAssigned = ObjectMapper.Map<HQAssignedUpdateDto, HQAssignedCreateDto>(EditingHQAssigment);
-            SelectedUsers = hQAssigmentDetail.IdentityUsers.Select(a => new LookupDto<Guid>{ Id = a.Id, DisplayName = a.Email}).ToList();
+                NewHQAssigned = ObjectMapper.Map<HQAssignedUpdateDto, HQAssignedCreateDto>(EditingHQAssigned);
+                SelectedIdentityUsers = hQAssigmentDetail.IdentityUsers.Select(a => new LookupDto<Guid>{ Id = a.Id, DisplayName = a.Email}).ToList();
             }
 
             //Không tồn tại
             else
             {
                 //Tạo mới list user và Assigment
-                SelectedUsers = new List<LookupDto<Guid>>();
+                SelectedIdentityUsers = new List<LookupDto<Guid>>();
 
                 NewHQAssigned = new HQAssignedCreateDto
                 {
@@ -143,30 +144,34 @@ namespace HQSOFT.Common.Blazor.Components
                 };
             }
             //await NewHQAssigmentValidations.ClearAll();
-            await CreateHQAssignedModal.Show();
+            await EditHQAssignedModal.Show();
         }
 
         private async Task CloseCreateHQAssignedModalAsync()
         {
-            await CreateHQAssignedModal.Hide();
+            await EditHQAssignedModal.Hide();
         }
 
         private async Task CreateHQAssigmentAsync()
         {
             try
             {
-                if (await NewHQAssignedValidations.ValidateAll() == false)
+                if (await EditingHQAssignedValidations.ValidateAll() == false)
                 {
                     return;
                 }
-                NewHQAssigned.IdentityUserIds = SelectedUsers.Select(x => x.Id).ToList();
+                EditingHQAssigned.IdentityUserIds = SelectedIdentityUsers.Select(x => x.Id).ToList();
 
 
-                if (EditingHQAssigmentId == Guid.Empty)
+                //Create new Assigned if Parent dont have Assigned
+                if (EditingHQAssignedId == Guid.Empty)
                 {
-                    NewHQAssigned.IDParent = TaskId;
+                    NewHQAssigned = ObjectMapper.Map<HQAssignedUpdateDto,HQAssignedCreateDto>(EditingHQAssigned);
+                    EditingHQAssigned.IDParent = Value;
                     await HQAssignedsAppService.CreateAsync(NewHQAssigned);
                 }
+
+                //Update Assigned if Parent have Assigned
                 else
                 {
                    await UpdateHQAssigmentAsync();
@@ -183,8 +188,12 @@ namespace HQSOFT.Common.Blazor.Components
 
         private void OnSelectedCreateTabChanged(string name)
         {
-            SelectedCreateTab = name; 
-            SelectedCreateTab2 = name;
+            SelectedCreateTab = name;
+        }
+
+        private void OnSelectedEditTabChanged(string name)
+        {
+            SelectedEditTab = name;
         }
 
 
@@ -194,6 +203,26 @@ namespace HQSOFT.Common.Blazor.Components
             IdentityUsers = (await HQAssignedsAppService.GetIdentityUserLookupAsync(new LookupRequestDto { Filter = newValue })).Items;
         }
 
+     
+        private async Task UpdateHQAssigmentAsync()
+        {
+            try
+            {
+                if (await EditingHQAssignedValidations.ValidateAll() == false)
+                {
+                    return;
+                }
+                EditingHQAssigned.IdentityUserIds = SelectedIdentityUsers.Select(x => x.Id).ToList();
+                await HQAssignedsAppService.UpdateAsync(EditingHQAssignedId, EditingHQAssigned);
+                await GetHQAssigmentsAsync();
+                await EditHQAssignedModal.Hide();
+            }
+            catch (Exception ex)
+            {
+                await HandleErrorAsync(ex);
+            }
+        }
+
         private void AddIdentityUser()
         {
             if (SelectedIdentityUserId.IsNullOrEmpty())
@@ -201,65 +230,27 @@ namespace HQSOFT.Common.Blazor.Components
                 return;
             }
 
-            if (SelectedIdentityUsers.Any(p => p.Id.ToString() == SelectedIdentityUserId))
+            foreach (var item in SelectedIdentityUserId)
             {
-                UiMessageService.Warn(L["ItemAlreadyAdded"]);
-                return;
-            }
-
-            SelectedIdentityUsers.Add(new LookupDto<Guid>
-            {
-                Id = Guid.Parse(SelectedIdentityUserId),
-                DisplayName = SelectedIdentityUserText
-            });
-        }
-        private async Task UpdateHQAssigmentAsync()
-        {
-            try
-            {
-                if (await NewHQAssignedValidations.ValidateAll() == false)
+                if (SelectedIdentityUsers.Any(p => p.Id.ToString() == item))
                 {
+                    UiMessageService.Warn(L["ItemAlreadyAdded"]);
                     return;
                 }
-                EditingHQAssigment.IdentityUserIds = SelectedUsers.Select(x => x.Id).ToList();
-                await HQAssignedsAppService.UpdateAsync(EditingHQAssigmentId, EditingHQAssigment);
-                await GetHQAssigmentsAsync();
-                await CreateHQShareModal.Hide();
             }
-            catch (Exception ex)
+
+
+            for (int i = 0; i < SelectedIdentityUserId.Count; i++)
             {
-                await HandleErrorAsync(ex);
+                Guid userId = Guid.Parse(SelectedIdentityUserId[i]);
+                string userText = SelectedIdentityUserText[i];
+                SelectedIdentityUsers.Add(new LookupDto<Guid>
+                {
+                    Id = userId,
+                    DisplayName = userText
+                });
             }
         }
-        //private void AddUser()
-        //{
-        //    if (SelectedUserId.IsNullOrEmpty())
-        //    {
-        //        return;
-        //    }
-
-        //    foreach ( var item in SelectedUserId )
-        //    {
-        //        if (SelectedUsers.Any(p => p.Id.ToString() == item))
-        //        {
-        //            UiMessageService.Warn(L["ItemAlreadyAdded"]);
-        //            return;
-        //        }
-        //    }
-
-          
-
-        //    for (int i = 0; i < SelectedUserId.Count; i++)
-        //    {
-        //        Guid userId = Guid.Parse(SelectedUserId[i]);
-        //        string userText = SelectedUserText[i];
-        //        SelectedUsers.Add(new LookupDto<Guid>
-        //        {
-        //            Id = userId,
-        //            DisplayName = userText
-        //        });
-        //    }
-        //}
 
     }
 }

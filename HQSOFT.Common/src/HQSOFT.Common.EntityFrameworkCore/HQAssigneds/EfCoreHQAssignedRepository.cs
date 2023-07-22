@@ -1,5 +1,6 @@
 using HQSOFT.Configuration.HQAssigments;
 using Volo.Abp.Identity;
+using Volo.Abp.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,7 +38,7 @@ namespace HQSOFT.Common.HQAssigneds
 
         public async Task<List<HQAssignedWithNavigationProperties>> GetListWithNavigationPropertiesAsync(
             string filterText = null,
-            Guid? iDParent = null,
+            string iDParent = null,
             DateTime? completebyMin = null,
             DateTime? completebyMax = null,
             PriorityAssign? priority = null,
@@ -68,7 +69,7 @@ namespace HQSOFT.Common.HQAssigneds
         protected virtual IQueryable<HQAssignedWithNavigationProperties> ApplyFilter(
             IQueryable<HQAssignedWithNavigationProperties> query,
             string filterText,
-            Guid? iDParent = null,
+            string iDParent = null,
             DateTime? completebyMin = null,
             DateTime? completebyMax = null,
             PriorityAssign? priority = null,
@@ -76,8 +77,8 @@ namespace HQSOFT.Common.HQAssigneds
             Guid? identityUserId = null)
         {
             return query
-                .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => e.HQAssigned.Comment.Contains(filterText))
-                    .WhereIf(iDParent.HasValue, e => e.HQAssigned.IDParent == iDParent)
+                .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => e.HQAssigned.IDParent.Contains(filterText) || e.HQAssigned.Comment.Contains(filterText))
+                    .WhereIf(!string.IsNullOrWhiteSpace(iDParent), e => e.HQAssigned.IDParent.Contains(iDParent))
                     .WhereIf(completebyMin.HasValue, e => e.HQAssigned.Completeby >= completebyMin.Value)
                     .WhereIf(completebyMax.HasValue, e => e.HQAssigned.Completeby <= completebyMax.Value)
                     .WhereIf(priority.HasValue, e => e.HQAssigned.Priority == priority)
@@ -87,7 +88,7 @@ namespace HQSOFT.Common.HQAssigneds
 
         public async Task<List<HQAssigned>> GetListAsync(
             string filterText = null,
-            Guid? iDParent = null,
+            string iDParent = null,
             DateTime? completebyMin = null,
             DateTime? completebyMax = null,
             PriorityAssign? priority = null,
@@ -104,7 +105,7 @@ namespace HQSOFT.Common.HQAssigneds
 
         public async Task<long> GetCountAsync(
             string filterText = null,
-            Guid? iDParent = null,
+            string iDParent = null,
             DateTime? completebyMin = null,
             DateTime? completebyMax = null,
             PriorityAssign? priority = null,
@@ -120,15 +121,15 @@ namespace HQSOFT.Common.HQAssigneds
         protected virtual IQueryable<HQAssigned> ApplyFilter(
             IQueryable<HQAssigned> query,
             string filterText,
-            Guid? iDParent = null,
+            string iDParent = null,
             DateTime? completebyMin = null,
             DateTime? completebyMax = null,
             PriorityAssign? priority = null,
             string comment = null)
         {
             return query
-                    .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => e.Comment.Contains(filterText))
-                    .WhereIf(iDParent.HasValue, e => e.IDParent == iDParent)
+                    .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => e.IDParent.Contains(filterText) || e.Comment.Contains(filterText))
+                    .WhereIf(!string.IsNullOrWhiteSpace(iDParent), e => e.IDParent.Contains(iDParent))
                     .WhereIf(completebyMin.HasValue, e => e.Completeby >= completebyMin.Value)
                     .WhereIf(completebyMax.HasValue, e => e.Completeby <= completebyMax.Value)
                     .WhereIf(priority.HasValue, e => e.Priority == priority)

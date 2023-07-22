@@ -1,3 +1,4 @@
+using HQSOFT.Configuration.HQAssigments;
 using Volo.Abp.Application.Dtos;
 using System;
 
@@ -7,7 +8,7 @@ namespace HQSOFT.Common.HQAssigneds
     {
         public string? FilterText { get; set; }
 
-        public Guid? IDParent { get; set; }
+        public string? IDParent { get; set; }
         public DateTime? CompletebyMin { get; set; }
         public DateTime? CompletebyMax { get; set; }
         public PriorityAssign? Priority { get; set; }

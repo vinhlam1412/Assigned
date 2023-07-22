@@ -16,7 +16,7 @@ namespace HQSOFT.Common.HQAssigneds
 
         Task<List<HQAssignedWithNavigationProperties>> GetListWithNavigationPropertiesAsync(
             string filterText = null,
-            Guid? iDParent = null,
+            string iDParent = null,
             DateTime? completebyMin = null,
             DateTime? completebyMax = null,
             PriorityAssign? priority = null,
@@ -30,7 +30,7 @@ namespace HQSOFT.Common.HQAssigneds
 
         Task<List<HQAssigned>> GetListAsync(
                     string filterText = null,
-                    Guid? iDParent = null,
+                    string iDParent = null,
                     DateTime? completebyMin = null,
                     DateTime? completebyMax = null,
                     PriorityAssign? priority = null,
@@ -43,7 +43,7 @@ namespace HQSOFT.Common.HQAssigneds
 
         Task<long> GetCountAsync(
             string filterText = null,
-            Guid? iDParent = null,
+            string iDParent = null,
             DateTime? completebyMin = null,
             DateTime? completebyMax = null,
             PriorityAssign? priority = null,

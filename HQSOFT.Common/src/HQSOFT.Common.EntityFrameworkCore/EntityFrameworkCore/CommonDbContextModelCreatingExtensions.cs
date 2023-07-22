@@ -56,6 +56,10 @@ public static class CommonDbContextModelCreatingExtensions
         }
         if (builder.IsHostDatabase())
         {
+
+        }
+        if (builder.IsHostDatabase())
+        {
             builder.Entity<HQAssigned>(b =>
 {
     b.ToTable(CommonDbProperties.DbTablePrefix + "HQAssigneds", CommonDbProperties.DbSchema);

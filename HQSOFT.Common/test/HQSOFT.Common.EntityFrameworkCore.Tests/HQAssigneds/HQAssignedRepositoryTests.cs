@@ -25,15 +25,15 @@ namespace HQSOFT.Common.HQAssigneds
             {
                 // Act
                 var result = await _hQAssignedRepository.GetListAsync(
-                    iDParent: Guid.Parse("0870d8bc-d205-4c2d-b834-fa959cbf95c7"),
+                    iDParent: "6f85f39773",
                     priority: default,
-                    comment: "45dc133bc94b44d08bc102b43d76fb6163ab3bcdc4ab4455ad28a754838b8629d0fbda1c67814571a4d657adcfb641a1"
+                    comment: "61c050ef23e04c838cf9076688f6a"
                 );
 
                 // Assert
                 result.Count.ShouldBe(1);
                 result.FirstOrDefault().ShouldNotBe(null);
-                result.First().Id.ShouldBe(Guid.Parse("e3bdf913-c647-4bab-998c-48f3974187f0"));
+                result.First().Id.ShouldBe(Guid.Parse("6637d576-1ce7-4d5d-a3bf-ad61a6b3a4ae"));
             });
         }
 
@@ -45,9 +45,9 @@ namespace HQSOFT.Common.HQAssigneds
             {
                 // Act
                 var result = await _hQAssignedRepository.GetCountAsync(
-                    iDParent: Guid.Parse("716a2f30-2eaa-4013-9ae1-6e33437448d1"),
+                    iDParent: "f2e5c07619474254b9e08",
                     priority: default,
-                    comment: "2b23ae02ec4343d98c6f9b3c1c9a133667d5604267c04b61b099"
+                    comment: "2840f601bf3a457287571823223621608de445764bd240f6a86b05edbcd9effc25363b435116425a8f800"
                 );
 
                 // Assert

@@ -28,6 +28,6 @@ namespace HQSOFT.Common.HQAssigneds
 
         Task<DownloadTokenResultDto> GetDownloadTokenAsync();
 
-        Task<HQAssignedDto> GetParentAsync(Guid id);
+        Task<HQAssignedDto> GetParentAsync(string id);
     }
 }

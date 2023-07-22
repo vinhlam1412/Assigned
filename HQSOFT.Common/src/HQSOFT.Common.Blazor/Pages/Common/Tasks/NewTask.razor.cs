@@ -51,7 +51,7 @@ namespace HQSOFT.Common.Blazor.Pages.Common.Tasks
         {
             await SetToolbarItemsAsync();
             await SetBreadcrumbItemsAsync();
-            //isVisible = Visibility.Invisible;
+            isVisible = Visibility.Invisible;
 
 
             //await SetPermissionsAsync();
@@ -60,7 +60,7 @@ namespace HQSOFT.Common.Blazor.Pages.Common.Tasks
             EditingHQTaskId = Guid.Parse(Id);
             if (EditingHQTaskId != Guid.Empty)
             {
-                //isVisible = Visibility.Visible;
+                isVisible = Visibility.Visible;
                 var attributeID = await HQTasksAppService.GetAsync(EditingHQTaskId);
                 EditingHQTask = ObjectMapper.Map<HQTaskDto, HQTaskUpdateDto>(attributeID);
             }

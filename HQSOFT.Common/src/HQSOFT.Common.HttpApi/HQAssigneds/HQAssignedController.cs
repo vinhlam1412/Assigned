@@ -86,8 +86,8 @@ namespace HQSOFT.Common.HQAssigneds
         }
 
         [HttpGet]
-        [Route("getParentId/{id}")]
-        public virtual Task<HQAssignedDto> GetParentAsync(Guid id)
+        [Route("get-parentId/{id}")]
+        public Task<HQAssignedDto> GetParentAsync(string id)
         {
             return _hQAssignedsAppService.GetParentAsync(id);
         }

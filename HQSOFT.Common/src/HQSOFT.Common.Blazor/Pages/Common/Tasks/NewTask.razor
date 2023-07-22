@@ -18,11 +18,13 @@
 
 </PageHeader>
 <Row>
-    <Column ColumnSize="ColumnSize.Is3">
-        @* ************************* HQSOFTLeftSideForm ************************* *@
-        <HQSOFTLeftSideForm Value="@EditingHQTaskId"></HQSOFTLeftSideForm>
+    @* ************************* HQSOFTLeftSideForm ************************* *@
+    <Column Visibility="isVisible" ColumnSize="ColumnSize.Is3">
+        <HQSOFTLeftSideForm Value="@Id"></HQSOFTLeftSideForm>
     </Column>
 
+
+    @* ************************* NEW ************************* *@
     <Column ColumnSize="ColumnSize.Is9">
         <Card>
             <CardBody>
