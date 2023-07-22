@@ -160,13 +160,14 @@ namespace HQSOFT.Common.Blazor.Components
                 {
                     return;
                 }
-                EditingHQAssigned.IdentityUserIds = SelectedIdentityUsers.Select(x => x.Id).ToList();
+                //EditingHQAssigned.IdentityUserIds = SelectedIdentityUsers.Select(x => x.Id).ToList();
 
 
                 //Create new Assigned if Parent dont have Assigned
                 if (EditingHQAssignedId == Guid.Empty)
                 {
                     NewHQAssigned = ObjectMapper.Map<HQAssignedUpdateDto,HQAssignedCreateDto>(EditingHQAssigned);
+                    NewHQAssigned.IdentityUserIds = SelectedIdentityUsers.Select(x => x.Id).ToList();
                     EditingHQAssigned.IDParent = Value;
                     await HQAssignedsAppService.CreateAsync(NewHQAssigned);
                 }
