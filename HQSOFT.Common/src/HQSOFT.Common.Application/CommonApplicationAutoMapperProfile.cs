@@ -1,3 +1,4 @@
+using HQSOFT.Common.HQShares;
 using Volo.Abp.Identity;
 using HQSOFT.Common.HQAssigneds;
 using System;
@@ -26,5 +27,9 @@ public class CommonApplicationAutoMapperProfile : Profile
         CreateMap<IdentityUser, IdentityUserDto>();
         CreateMap<IdentityUser, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Email));
         CreateMap<IdentityUserDto, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Email));
+
+        CreateMap<HQShare, HQShareDto>();
+        CreateMap<HQShare, HQShareExcelDto>();
+        CreateMap<HQShareWithNavigationProperties, HQShareWithNavigationPropertiesDto>();
     }
 }

@@ -1,3 +1,4 @@
+using HQSOFT.Common.HQShares;
 using HQSOFT.Common.HQAssigneds;
 using HQSOFT.Common.HQTasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,6 +25,8 @@ public class CommonEntityFrameworkCoreModule : AbpModule
             options.AddRepository<HQTask, HQTasks.EfCoreHQTaskRepository>();
 
             options.AddRepository<HQAssigned, HQAssigneds.EfCoreHQAssignedRepository>();
+
+            options.AddRepository<HQShare, HQShares.EfCoreHQShareRepository>();
 
         });
     }

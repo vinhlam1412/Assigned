@@ -1,3 +1,4 @@
+using HQSOFT.Common.HQShares;
 using HQSOFT.Common.HQAssigneds;
 using HQSOFT.Common.HQTasks;
 using Volo.Abp.EntityFrameworkCore.Modeling;
@@ -15,6 +16,7 @@ namespace HQSOFT.Common.EntityFrameworkCore;
 [ConnectionStringName(CommonDbProperties.ConnectionStringName)]
 public class CommonDbContext : AbpDbContext<CommonDbContext>, ICommonDbContext, IIdentityDbContext
 {
+    public DbSet<HQShare> HQShares { get; set; }
     //Identity
     public DbSet<IdentityUser> Users { get; set; }
     public DbSet<IdentityRole> Roles { get; set; }
@@ -38,7 +40,7 @@ public class CommonDbContext : AbpDbContext<CommonDbContext>, ICommonDbContext, 
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        base.OnModelCreating(builder);      
+        base.OnModelCreating(builder);
         builder.ConfigureIdentity();
         builder.ConfigureCommon();
     }

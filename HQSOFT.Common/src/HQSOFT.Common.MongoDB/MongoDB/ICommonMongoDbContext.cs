@@ -1,3 +1,4 @@
+using HQSOFT.Common.HQShares;
 using HQSOFT.Common.HQAssigneds;
 using HQSOFT.Common.HQTasks;
 using MongoDB.Driver;
@@ -9,6 +10,7 @@ namespace HQSOFT.Common.MongoDB;
 [ConnectionStringName(CommonDbProperties.ConnectionStringName)]
 public interface ICommonMongoDbContext : IAbpMongoDbContext
 {
+    IMongoCollection<HQShare> HQShares { get; }
     IMongoCollection<HQAssigned> HQAssigneds { get; }
     IMongoCollection<HQTask> HQTasks { get; }
     /* Define mongo collections here. Example:

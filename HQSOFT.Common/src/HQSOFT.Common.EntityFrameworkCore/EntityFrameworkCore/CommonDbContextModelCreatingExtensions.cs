@@ -1,3 +1,4 @@
+using HQSOFT.Common.HQShares;
 using HQSOFT.Common.HQAssigneds;
 using Volo.Abp.EntityFrameworkCore.Modeling;
 using HQSOFT.Common.HQTasks;
@@ -73,18 +74,49 @@ public static class CommonDbContextModelCreatingExtensions
 
             builder.Entity<HQAssignedIdentityUser>(b =>
 {
-b.ToTable(CommonDbProperties.DbTablePrefix + "HQAssignedIdentityUser" + CommonDbProperties.DbSchema);
+    b.ToTable(CommonDbProperties.DbTablePrefix + "HQAssignedIdentityUser" + CommonDbProperties.DbSchema);
+    b.ConfigureByConvention();
+
+    b.HasKey(
+        x => new { x.HQAssignedId, x.IdentityUserId }
+    );
+
+    b.HasOne<HQAssigned>().WithMany(x => x.IdentityUsers).HasForeignKey(x => x.HQAssignedId).IsRequired().OnDelete(DeleteBehavior.NoAction);
+    b.HasOne<IdentityUser>().WithMany().HasForeignKey(x => x.IdentityUserId).IsRequired().OnDelete(DeleteBehavior.NoAction);
+
+    b.HasIndex(
+            x => new { x.HQAssignedId, x.IdentityUserId }
+    );
+});
+        }
+        if (builder.IsHostDatabase())
+        {
+            builder.Entity<HQShare>(b =>
+{
+    b.ToTable(CommonDbProperties.DbTablePrefix + "HQShares", CommonDbProperties.DbSchema);
+    b.ConfigureByConvention();
+    b.Property(x => x.IDParent).HasColumnName(nameof(HQShare.IDParent));
+    b.Property(x => x.CanRead).HasColumnName(nameof(HQShare.CanRead));
+    b.Property(x => x.CanWrite).HasColumnName(nameof(HQShare.CanWrite));
+    b.Property(x => x.CanSubmit).HasColumnName(nameof(HQShare.CanSubmit));
+    b.Property(x => x.CanShare).HasColumnName(nameof(HQShare.CanShare));
+    b.HasMany(x => x.IdentityUsers).WithOne().HasForeignKey(x => x.HQShareId).IsRequired().OnDelete(DeleteBehavior.NoAction);
+});
+
+            builder.Entity<HQShareIdentityUser>(b =>
+{
+b.ToTable(CommonDbProperties.DbTablePrefix + "HQShareIdentityUser" + CommonDbProperties.DbSchema);
 b.ConfigureByConvention();
 
 b.HasKey(
-    x => new { x.HQAssignedId, x.IdentityUserId }
+    x => new { x.HQShareId, x.IdentityUserId }
 );
 
-b.HasOne<HQAssigned>().WithMany(x => x.IdentityUsers).HasForeignKey(x => x.HQAssignedId).IsRequired().OnDelete(DeleteBehavior.NoAction);
+b.HasOne<HQShare>().WithMany(x => x.IdentityUsers).HasForeignKey(x => x.HQShareId).IsRequired().OnDelete(DeleteBehavior.NoAction);
 b.HasOne<IdentityUser>().WithMany().HasForeignKey(x => x.IdentityUserId).IsRequired().OnDelete(DeleteBehavior.NoAction);
 
 b.HasIndex(
-        x => new { x.HQAssignedId, x.IdentityUserId }
+        x => new { x.HQShareId, x.IdentityUserId }
 );
 });
         }

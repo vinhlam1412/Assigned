@@ -1,0 +1,71 @@
+@page
+@using Microsoft.AspNetCore.Mvc.Localization
+@using HQSOFT.Common.Localization
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
+@using HQSOFT.Common.Web.Pages.Common.HQShares
+@using HQSOFT.Common.HQShares;
+@using System.Globalization
+@inject IHtmlLocalizer<CommonResource> L
+@model CreateModalModel
+@{
+    Layout = null;
+}
+
+<form data-ajaxForm="true" asp-page="/Common/HQShares/CreateModal" autocomplete="off">
+    <abp-modal id="HQShareCreateModal">
+        <abp-modal-header title="@L["NewHQShare"].Value"></abp-modal-header>
+
+        <abp-modal-body>
+             <abp-tabs>
+                <abp-tab title="@L["HQShare"].Value">
+                    
+
+            <abp-input asp-for="HQShare.IDParent"   />
+
+
+            <abp-input asp-for="HQShare.CanRead"   />
+
+
+            <abp-input asp-for="HQShare.CanWrite"   />
+
+
+            <abp-input asp-for="HQShare.CanSubmit"   />
+
+
+            <abp-input asp-for="HQShare.CanShare"   />
+
+                    
+                </abp-tab>
+                                <abp-tab title="@L["IdentityUsers"].Value">
+                    <div class="input-group multiple mb-3">
+                      <div class="flex-grow-1">
+                        <select id="IdentityUserLookup"
+                                        name="IdentityUserLookup"
+                                        class="form-control"
+                                        style="width: 100%"
+                                        data-value="">
+                        </select>
+                      </div>
+                      <abp-button button-type="Info" id="AddIdentityUserButton" class="text-light">@L["Add"]</abp-button>
+                    </div>
+
+                    <abp-row>
+                        <abp-table style="display:none" id="IdentityUserTable">
+                            <thead Theme="Dark">
+                            <tr style="text-align: center; vertical-align: middle;">
+                                <th scope="Column" style="text-align: left">Email</th>
+                                <th scope="Column"></th>
+                            </tr>
+                            </thead>
+                            <tbody id="IdentityUserTableRows">
+                            </tbody>
+                        </abp-table>
+                    </abp-row>
+                 </abp-tab>
+
+            </abp-tabs>
+        </abp-modal-body>
+
+        <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)"></abp-modal-footer>
+    </abp-modal>
+</form>

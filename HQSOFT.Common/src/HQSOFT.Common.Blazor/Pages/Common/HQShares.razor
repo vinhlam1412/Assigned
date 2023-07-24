@@ -1,0 +1,380 @@
+@page "/Common/HQShares"
+
+
+
+@attribute [Authorize(CommonPermissions.HQShares.Default)]
+@using global::HQSOFT.Common.HQShares
+@using global::HQSOFT.Common.Localization
+@using global::HQSOFT.Common.Shared
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@using Microsoft.AspNetCore.Components.Web
+@using Blazorise
+@using Blazorise.Components
+@using Blazorise.DataGrid
+@using Volo.Abp.BlazoriseUI
+@using Volo.Abp.BlazoriseUI.Components
+@using Volo.Abp.ObjectMapping
+@using Volo.Abp.AspNetCore.Components.Messages
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
+@using global::HQSOFT.Common.Permissions
+@using Microsoft.AspNetCore.Components
+@using Volo.Abp.AspNetCore.Components.Web
+@using Volo.Abp.Http.Client
+@inherits CommonComponentBase
+@inject IHQSharesAppService HQSharesAppService
+@inject IUiMessageService UiMessageService
+@inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
+@inject NavigationManager NavigationManager
+
+@* ************************* PAGE HEADER ************************* *@
+<PageHeader Title="@L["HQShares"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
+
+</PageHeader>
+
+@* ************************* SEARCH ************************* *@
+<Card>
+    <CardBody>
+        <Form id="HQShareSearchForm" class="mb-3">
+            <Addons>
+                <Addon AddonType="AddonType.Body">
+                    <TextEdit @bind-Text="@Filter.FilterText"
+                              Autofocus="true"
+                              Placeholder="@L["Search"]">
+                    </TextEdit>
+                </Addon>
+                <Addon AddonType="AddonType.End">
+                    <SubmitButton Form="HQShareSearchForm" Clicked="GetHQSharesAsync">
+                        <Icon Name="IconName.Search" Class="me-1"></Icon>@L["Search"]
+                    </SubmitButton>
+                </Addon>
+            </Addons>
+        </Form>
+    </CardBody>
+</Card>
+
+@* ************************* DATA GRID ************************* *@
+<Card>
+    <CardBody>
+        <DataGrid TItem="HQShareWithNavigationPropertiesDto"
+                  Data="HQShareList"
+                  ReadData="OnDataGridReadAsync"
+                  TotalItems="TotalCount"
+                  ShowPager="true"
+                  Responsive="true"
+                  PageSize="PageSize">
+            <DataGridColumns>
+                <DataGridEntityActionsColumn TItem="HQShareWithNavigationPropertiesDto" @ref="@EntityActionsColumn">
+                    <DisplayTemplate>
+                        <EntityActions TItem="HQShareWithNavigationPropertiesDto" EntityActionsColumn="@EntityActionsColumn">
+                            <EntityAction TItem="HQShareWithNavigationPropertiesDto"
+                                          Visible="@CanEditHQShare"
+                                          Clicked="async () => await OpenEditHQShareModalAsync(context)"
+                                          Text="@L["Edit"]"></EntityAction>
+                            <EntityAction TItem="HQShareWithNavigationPropertiesDto"
+                                          Visible="@CanDeleteHQShare"
+                                          Clicked="() => DeleteHQShareAsync(context)"
+                                          ConfirmationMessage="@(()=> L["DeleteConfirmationMessage"])"
+                                          Text="@L["Delete"]"></EntityAction>
+                        </EntityActions>
+                    </DisplayTemplate>
+                </DataGridEntityActionsColumn>
+               
+              <DataGridColumn TItem="HQShareWithNavigationPropertiesDto"
+                      Field="HQShare.IDParent"
+                      Caption="@L["IDParent"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="HQShareWithNavigationPropertiesDto"
+                      Field="HQShare.CanRead"
+                      Caption="@L["CanRead"]">
+                    <DisplayTemplate>
+                        @if (context.HQShare.CanRead)
+                        {
+                            <Icon TextColor="TextColor.Success" Name="@IconName.Check" />
+                        }
+                        else
+                        {
+                            <Icon TextColor="TextColor.Danger" Name="@IconName.Times" />
+                        }
+                    </DisplayTemplate>
+              </DataGridColumn>
+
+
+              <DataGridColumn TItem="HQShareWithNavigationPropertiesDto"
+                      Field="HQShare.CanWrite"
+                      Caption="@L["CanWrite"]">
+                    <DisplayTemplate>
+                        @if (context.HQShare.CanWrite)
+                        {
+                            <Icon TextColor="TextColor.Success" Name="@IconName.Check" />
+                        }
+                        else
+                        {
+                            <Icon TextColor="TextColor.Danger" Name="@IconName.Times" />
+                        }
+                    </DisplayTemplate>
+              </DataGridColumn>
+
+
+              <DataGridColumn TItem="HQShareWithNavigationPropertiesDto"
+                      Field="HQShare.CanSubmit"
+                      Caption="@L["CanSubmit"]">
+                    <DisplayTemplate>
+                        @if (context.HQShare.CanSubmit)
+                        {
+                            <Icon TextColor="TextColor.Success" Name="@IconName.Check" />
+                        }
+                        else
+                        {
+                            <Icon TextColor="TextColor.Danger" Name="@IconName.Times" />
+                        }
+                    </DisplayTemplate>
+              </DataGridColumn>
+
+
+              <DataGridColumn TItem="HQShareWithNavigationPropertiesDto"
+                      Field="HQShare.CanShare"
+                      Caption="@L["CanShare"]">
+                    <DisplayTemplate>
+                        @if (context.HQShare.CanShare)
+                        {
+                            <Icon TextColor="TextColor.Success" Name="@IconName.Check" />
+                        }
+                        else
+                        {
+                            <Icon TextColor="TextColor.Danger" Name="@IconName.Times" />
+                        }
+                    </DisplayTemplate>
+              </DataGridColumn>
+
+
+            </DataGridColumns>
+        </DataGrid>
+    </CardBody>
+</Card>
+
+@* ************************* CREATE MODAL ************************* *@
+<Modal @ref="CreateHQShareModal" Closing="@CreateHQShareModal.CancelClosingModalWhenFocusLost">
+    <ModalContent Centered="true">
+        <Form id="CreateHQShareForm">
+            <ModalHeader>
+                <ModalTitle>@L["NewHQShare"]</ModalTitle>
+                <CloseButton Clicked="CloseCreateHQShareModalAsync" />
+            </ModalHeader>
+            <ModalBody>
+                <Tabs SelectedTab="@SelectedCreateTab" SelectedTabChanged="@OnSelectedCreateTabChanged">
+                    <Items>
+                        <Tab Name="hQShare-create-tab">@L["HQShare"].Value</Tab> 
+                        <Tab Name="identityUsers-create-tab">@L["IdentityUsers"].Value</Tab>
+                    </Items>
+                    <Content>
+                <Validations @ref="@NewHQShareValidations"
+                            Mode="ValidationMode.Auto"
+                            Model="@NewHQShare"
+                            ValidateOnLoad="false">
+                     <TabPanel Name="hQShare-create-tab">
+                    
+                    <Validation>
+                        <Field>
+                            <FieldLabel>@L["IDParent"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewHQShare.IDParent"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Field>
+                        <Check TValue="bool" @bind-Checked="@NewHQShare.CanRead" >@L["CanRead"]</Check>
+                    </Field>
+
+                    <Field>
+                        <Check TValue="bool" @bind-Checked="@NewHQShare.CanWrite" >@L["CanWrite"]</Check>
+                    </Field>
+
+                    <Field>
+                        <Check TValue="bool" @bind-Checked="@NewHQShare.CanSubmit" >@L["CanSubmit"]</Check>
+                    </Field>
+
+                    <Field>
+                        <Check TValue="bool" @bind-Checked="@NewHQShare.CanShare" >@L["CanShare"]</Check>
+                    </Field>
+
+                    </TabPanel>
+                                                <TabPanel Name="identityUsers-create-tab">
+
+                                <Row>
+                                    <Column ColumnSize="ColumnSize.Is9">
+                                        <Field>
+
+                                            <Autocomplete Data="@IdentityUsers"
+                                                          TItem="LookupDto<Guid>"
+                                                          TValue="string"
+                                                          TextField="@((item) => item.DisplayName)"
+                                                          ValueField="@((item) => item.Id.ToString())"
+                                                          SearchChanged="@GetIdentityUserLookupAsync"
+                                                          @bind-SelectedValue="@SelectedIdentityUserId"
+                                                          @bind-SelectedText="@SelectedIdentityUserText"
+                                                          Placeholder="&#8212;"/>
+                                        </Field>
+                                    </Column>
+
+                                    <Column ColumnSize="ColumnSize.Is3">
+                                        <Button Color="Color.Info" TextColor="TextColor.White" Size="Size.Small" Clicked="AddIdentityUser">
+                                            <Icon class="fa fa-plus"></Icon> @L["Add"]
+                                        </Button>
+                                    </Column>
+                                </Row>
+                                @if (SelectedIdentityUsers.Any())
+                                {
+                                    <Table striped-rows="true" responsive-sm="true" class="mt-2">
+                                        <TableHeader>
+                                            <TableHeaderCell><Span class="float-start">@L["Email"]</Span></TableHeaderCell>
+                                        </TableHeader>
+                                        <TableBody>
+                                            @foreach (var identityUser in SelectedIdentityUsers)
+                                            {
+                                                <TableRow>
+                                                    <TableRowCell><Span class="float-start">@identityUser.DisplayName</Span></TableRowCell>
+                                                    <TableRowCell>
+                                                        <span class="btn btn-danger btn-sm float-end"
+                                                              @onclick="() => SelectedIdentityUsers.RemoveAll(s => s.Id == identityUser.Id)">
+                                                            <Icon Class="fa fa-trash"></Icon>
+                                                        </span>
+                                                    </TableRowCell>
+                                                </TableRow>
+                                            }
+                                        </TableBody>
+                                    </Table>
+                                }
+                            </TabPanel>
+                </Validations>
+                    </Content>
+                </Tabs>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Color.Secondary"
+                        Clicked="CloseCreateHQShareModalAsync">
+                    @L["Cancel"]
+                </Button>
+                <SubmitButton Form="CreateHQShareForm" Clicked="CreateHQShareAsync" />
+            </ModalFooter>
+        </Form>
+    </ModalContent>
+</Modal>
+
+@* ************************* EDIT MODAL ************************* *@
+<Modal @ref="EditHQShareModal" Closing="@EditHQShareModal.CancelClosingModalWhenFocusLost">
+    <ModalContent Centered="true">
+        <Form id="EditHQShareForm">
+            <ModalHeader>
+                <ModalTitle>@L["Update"]</ModalTitle>
+                <CloseButton Clicked="CloseEditHQShareModalAsync" />
+            </ModalHeader>
+            <ModalBody>
+                <Tabs SelectedTab="@SelectedEditTab" SelectedTabChanged="@OnSelectedEditTabChanged">
+                    <Items>
+                        <Tab Name="hQShare-edit-tab">@L["HQShare"].Value</Tab>
+                        
+                        <Tab Name="identityUsers-edit-tab">@L["IdentityUsers"].Value</Tab>
+                    </Items>
+                    <Content>
+                <Validations @ref="@EditingHQShareValidations"
+                            Mode="ValidationMode.Auto"
+                            Model="@EditingHQShare"
+                            ValidateOnLoad="false">
+                     <TabPanel Name="hQShare-edit-tab">
+                    
+                    <Validation>
+                        <Field>
+                            <FieldLabel>@L["IDParent"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingHQShare.IDParent"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Field>
+                        <Check TValue="bool" @bind-Checked="@EditingHQShare.CanRead" >@L["CanRead"]</Check>
+                    </Field>
+
+                    <Field>
+                        <Check TValue="bool" @bind-Checked="@EditingHQShare.CanWrite" >@L["CanWrite"]</Check>
+                    </Field>
+
+                    <Field>
+                        <Check TValue="bool" @bind-Checked="@EditingHQShare.CanSubmit" >@L["CanSubmit"]</Check>
+                    </Field>
+
+                    <Field>
+                        <Check TValue="bool" @bind-Checked="@EditingHQShare.CanShare" >@L["CanShare"]</Check>
+                    </Field>
+
+                    </TabPanel>
+                                                <TabPanel Name="identityUsers-edit-tab">
+
+                                <Row>
+                                    <Column ColumnSize="ColumnSize.Is9">
+                                        <Field>
+
+                                            <Autocomplete Data="@IdentityUsers"
+                                                          TItem="LookupDto<Guid>"
+                                                          TValue="string"
+                                                          TextField="@((item) => item.DisplayName)"
+                                                          ValueField="@((item) => item.Id.ToString())"
+                                                          SearchChanged="@GetIdentityUserLookupAsync"
+                                                          @bind-SelectedValue="@SelectedIdentityUserId"
+                                                          @bind-SelectedText="@SelectedIdentityUserText"
+                                                          Placeholder="&#8212;"/>
+                                        </Field>
+                                    </Column>
+
+                                    <Column ColumnSize="ColumnSize.Is3">
+                                        <Button Color="Color.Info" TextColor="TextColor.White" Size="Size.Small" Clicked="AddIdentityUser">
+                                            <Icon class="fa fa-plus"></Icon> @L["Add"]
+                                        </Button>
+                                    </Column>
+                                </Row>
+                                @if (SelectedIdentityUsers.Any())
+                                {
+                                    <Table striped-rows="true" responsive-sm="true" class="mt-2">
+                                        <TableHeader>
+                                            <TableHeaderCell><Span class="float-start">@L["Email"]</Span></TableHeaderCell>
+                                        </TableHeader>
+                                        <TableBody>
+                                            @foreach (var identityUser in SelectedIdentityUsers)
+                                            {
+                                                <TableRow>
+                                                    <TableRowCell><Span class="float-start">@identityUser.DisplayName</Span></TableRowCell>
+                                                    <TableRowCell>
+                                                        <span class="btn btn-danger btn-sm float-end"
+                                                              @onclick="() => SelectedIdentityUsers.RemoveAll(s => s.Id == identityUser.Id)">
+                                                            <Icon Class="fa fa-trash"></Icon>
+                                                        </span>
+                                                    </TableRowCell>
+                                                </TableRow>
+                                            }
+                                        </TableBody>
+                                    </Table>
+                                }
+                            </TabPanel>
+                </Validations>
+                    </Content>
+                </Tabs>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Color.Secondary"
+                        Clicked="CloseEditHQShareModalAsync">
+                    @L["Cancel"]
+                </Button>
+                <SubmitButton Form="CreateHQShareForm" Clicked="UpdateHQShareAsync" />
+            </ModalFooter>
+        </Form>
+    </ModalContent>
+</Modal>

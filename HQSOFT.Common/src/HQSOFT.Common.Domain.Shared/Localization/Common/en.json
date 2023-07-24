@@ -60,7 +60,7 @@
     "Enum:PriorityAssign.4": "Urgent",
     "Permission:HQAssigneds": "H Q Assigneds",
     "HQAssigneds": "H Q Assigneds",
-    "NewHQAssigned": "New H Q Assigned",
+    "NewHQAssigned": "Add to ToDo",
     "IDParent": "I D Parent",
     "Completeby": "Completeby",
     "Comment": "Comment",
@@ -72,6 +72,23 @@
     "MinComment": "Min Comment",
     "MaxIDParent": "Max I D Parent",
     "MaxComment": "Max Comment",
-    "IdentityUsers": "Identity users"
+    "IdentityUsers": "Identity users",
+    "Permission:HQShares": "H Q Shares",
+    "HQShares": "H Q Shares",
+    "NewHQShare": "New H Q Share",
+    "CanRead": "Can Read",
+    "CanWrite": "Can Write",
+    "CanSubmit": "Can Submit",
+    "CanShare": "Can Share",
+    "Menu:HQShares": "H Q Shares",
+    "HQShare": "H Q Share",
+    "MinCanRead": "Min Can Read",
+    "MinCanWrite": "Min Can Write",
+    "MinCanSubmit": "Min Can Submit",
+    "MinCanShare": "Min Can Share",
+    "MaxCanRead": "Max Can Read",
+    "MaxCanWrite": "Max Can Write",
+    "MaxCanSubmit": "Max Can Submit",
+    "MaxCanShare": "Max Can Share"
   }
 }

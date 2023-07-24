@@ -108,6 +108,94 @@ namespace HQSOFT.Common.Migrations
                     b.ToTable("CommonHQAssignedIdentityUser", (string)null);
                 });
 
+            modelBuilder.Entity("HQSOFT.Common.HQShares.HQShare", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("CanRead")
+                        .HasColumnType("boolean")
+                        .HasColumnName("CanRead");
+
+                    b.Property<bool>("CanShare")
+                        .HasColumnType("boolean")
+                        .HasColumnName("CanShare");
+
+                    b.Property<bool>("CanSubmit")
+                        .HasColumnType("boolean")
+                        .HasColumnName("CanSubmit");
+
+                    b.Property<bool>("CanWrite")
+                        .HasColumnType("boolean")
+                        .HasColumnName("CanWrite");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("ConcurrencyStamp");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<string>("ExtraProperties")
+                        .HasColumnType("text")
+                        .HasColumnName("ExtraProperties");
+
+                    b.Property<string>("IDParent")
+                        .HasColumnType("text")
+                        .HasColumnName("IDParent");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("LastModifierId");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CommonHQShares", (string)null);
+                });
+
+            modelBuilder.Entity("HQSOFT.Common.HQShares.HQShareIdentityUser", b =>
+                {
+                    b.Property<Guid>("HQShareId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("IdentityUserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("HQShareId", "IdentityUserId");
+
+                    b.HasIndex("IdentityUserId");
+
+                    b.HasIndex("HQShareId", "IdentityUserId");
+
+                    b.ToTable("CommonHQShareIdentityUser", (string)null);
+                });
+
             modelBuilder.Entity("HQSOFT.Common.HQTasks.HQTask", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1268,6 +1356,21 @@ namespace HQSOFT.Common.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("HQSOFT.Common.HQShares.HQShareIdentityUser", b =>
+                {
+                    b.HasOne("HQSOFT.Common.HQShares.HQShare", null)
+                        .WithMany("IdentityUsers")
+                        .HasForeignKey("HQShareId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Volo.Abp.Identity.IdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("IdentityUserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Volo.Abp.AuditLogging.AuditLogAction", b =>
                 {
                     b.HasOne("Volo.Abp.AuditLogging.AuditLog", null)
@@ -1384,6 +1487,11 @@ namespace HQSOFT.Common.Migrations
                 });
 
             modelBuilder.Entity("HQSOFT.Common.HQAssigneds.HQAssigned", b =>
+                {
+                    b.Navigation("IdentityUsers");
+                });
+
+            modelBuilder.Entity("HQSOFT.Common.HQShares.HQShare", b =>
                 {
                     b.Navigation("IdentityUsers");
                 });

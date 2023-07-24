@@ -1,3 +1,4 @@
+using HQSOFT.Common.HQShares;
 using HQSOFT.Common.HQAssigneds;
 using Volo.Abp.AutoMapper;
 using HQSOFT.Common.HQTasks;
@@ -17,8 +18,10 @@ public class CommonBlazorAutoMapperProfile : Profile
         CreateMap<HQTaskDto, HQTaskUpdateDto>();
         CreateMap<HQTaskUpdateDto, HQTaskCreateDto>();
 
-
         CreateMap<HQAssignedDto, HQAssignedUpdateDto>().Ignore(x => x.IdentityUserIds);
         CreateMap<HQAssignedUpdateDto, HQAssignedCreateDto>().Ignore(x => x.IdentityUserIds);
+
+        CreateMap<HQShareDto, HQShareUpdateDto>().Ignore(x => x.IdentityUserIds);
+        CreateMap<HQShareUpdateDto, HQShareCreateDto>().Ignore(x => x.IdentityUserIds);
     }
 }

@@ -8,4 +8,6 @@ public class CommonMenus
 
     public const string HQAssigneds = Prefix + ".HQAssigneds";
 
+    public const string HQShares = Prefix + ".HQShares";
+
 }

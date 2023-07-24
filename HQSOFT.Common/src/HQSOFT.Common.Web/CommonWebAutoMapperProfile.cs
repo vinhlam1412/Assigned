@@ -1,3 +1,5 @@
+using HQSOFT.Common.Web.Pages.Common.HQShares;
+using HQSOFT.Common.HQShares;
 using HQSOFT.Common.Web.Pages.Common.HQAssigneds;
 using HQSOFT.Common.HQAssigneds;
 using HQSOFT.Common.Web.Pages.Common.HQTasks;
@@ -26,5 +28,9 @@ public class CommonWebAutoMapperProfile : Profile
         CreateMap<HQAssignedDto, HQAssignedUpdateViewModel>().Ignore(x => x.IdentityUserIds);
         CreateMap<HQAssignedUpdateViewModel, HQAssignedUpdateDto>();
         CreateMap<HQAssignedCreateViewModel, HQAssignedCreateDto>();
+
+        CreateMap<HQShareDto, HQShareUpdateViewModel>().Ignore(x => x.IdentityUserIds);
+        CreateMap<HQShareUpdateViewModel, HQShareUpdateDto>();
+        CreateMap<HQShareCreateViewModel, HQShareCreateDto>();
     }
 }

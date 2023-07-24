@@ -55,6 +55,7 @@ public class CommonWebModule : AbpModule
             //Configure authorization.
             options.Conventions.AuthorizePage("/HQTasks/Index", CommonPermissions.HQTasks.Default);
             options.Conventions.AuthorizePage("/HQAssigneds/Index", CommonPermissions.HQAssigneds.Default);
+            options.Conventions.AuthorizePage("/HQShares/Index", CommonPermissions.HQShares.Default);
         });
     }
 }

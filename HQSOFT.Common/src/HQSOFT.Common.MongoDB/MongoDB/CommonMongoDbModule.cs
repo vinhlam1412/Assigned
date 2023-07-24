@@ -1,3 +1,4 @@
+using HQSOFT.Common.HQShares;
 using HQSOFT.Common.HQAssigneds;
 using HQSOFT.Common.HQTasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +23,8 @@ public class CommonMongoDbModule : AbpModule
             options.AddRepository<HQTask, HQTasks.MongoHQTaskRepository>();
 
             options.AddRepository<HQAssigned, HQAssigneds.MongoHQAssignedRepository>();
+
+            options.AddRepository<HQShare, HQShares.MongoHQShareRepository>();
 
         });
     }
