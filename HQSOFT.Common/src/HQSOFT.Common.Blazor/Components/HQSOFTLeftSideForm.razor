@@ -30,7 +30,7 @@
         <Button Style="margin-top: 20px; width:100%" Outline Clicked="OpenEditHQAssignedModalAsync">
             <Icon Name="IconName.PlusCircle"  />
         </Button>
-        @foreach(var item in SelectedIdentityUsers)
+        @foreach(var item in SelectedIdentityAssignedUsers)
         {
             <Field>
                 <Text>              
@@ -38,9 +38,7 @@
                 </Text>
             </Field>
         }
-        <Span>Vinh Lam</Span>
 
- 
         <Icon Name="IconName.Paperclip" />
         <Text class="title">Attachments</Text>
 
@@ -68,6 +66,14 @@
         <Button Color="Color.Dark" Style="margin-top: 20px; width:100%" Outline Clicked="OpenEditHQShareModalAsync">
             <Icon Name="IconName.PlusCircle" />
         </Button>
+        @foreach (var item in SelectedIdentityShareUsers)
+        {
+            <Field>
+                <Text>
+                    @item.DisplayName
+                </Text>
+            </Field>
+        }
         <Row Style="margin-top:100px"></Row>
         <Icon Name="IconName.Comment" />
         <Text Style="margin:10px">0</Text>
@@ -119,20 +125,20 @@
                                         </Button>
                                     </Column>*@
                                 </Row>
-                                @if (SelectedIdentityUsers.Any())
+                                @if (SelectedIdentityAssignedUsers.Any())
                                 {
                                     <Table striped-rows="true" responsive-sm="true" class="mt-2">
                                         <TableHeader>
                                             <TableHeaderCell><Span class="float-start">@L["Email"]</Span></TableHeaderCell>
                                         </TableHeader>
                                         <TableBody>
-                                            @foreach (var identityUser in SelectedIdentityUsers)
+                                        @foreach (var identityUser in SelectedIdentityAssignedUsers)
                                             {
                                                 <TableRow>
                                                     <TableRowCell><Span class="float-start">@identityUser.DisplayName</Span></TableRowCell>
                                                     <TableRowCell>
                                                         <span class="btn btn-danger btn-sm float-end"
-                                                      @onclick="() => SelectedIdentityUsers.RemoveAll(s => s.Id == identityUser.Id)">
+                                                      @onclick="() => SelectedIdentityAssignedUsers.RemoveAll(s => s.Id == identityUser.Id)">
                                                             <Icon Class="fa fa-trash"></Icon>
                                                         </span>
                                                     </TableRowCell>
@@ -243,20 +249,20 @@
                         </Row>        
 
 
-                                    @if (SelectedIdentityUsers.Any())
+                                    @if (SelectedIdentityShareUsers.Any())
                                 {
                                     <Table striped-rows="true" responsive-sm="true" class="mt-2">
                                         <TableHeader>
                                             <TableHeaderCell><Span class="float-start">@L["Email"]</Span></TableHeaderCell>
                                         </TableHeader>
                                         <TableBody>
-                                            @foreach (var identityUser in SelectedIdentityUsers)
+                                            @foreach (var identityUser in SelectedIdentityShareUsers)
                                             {
                                                 <TableRow>
                                                     <TableRowCell><Span class="float-start">@identityUser.DisplayName</Span></TableRowCell>
                                                     <TableRowCell>
                                                         <span class="btn btn-danger btn-sm float-end"
-                                                      @onclick="() => SelectedIdentityUsers.RemoveAll(s => s.Id == identityUser.Id)">
+                                                        @onclick="() => SelectedIdentityShareUsers.RemoveAll(s => s.Id == identityUser.Id)">
                                                             <Icon Class="fa fa-trash"></Icon>
                                                         </span>
                                                     </TableRowCell>
@@ -297,8 +303,10 @@
                                                           TextField="@((item) => item.DisplayName)"
                                                           ValueField="@((item) => item.Id.ToString())"
                                                           SearchChanged="@GetIdentityUserLookupAsync"                                                      
-                                                          @bind-SelectedValues="@SelectedIdentityUserId"
-                                                          @bind-SelectedTexts="@SelectedIdentityUserText"
+                                                         
+                                                          @bind-SelectedValue="@SelectedIdentityUserIdShare"
+                                                         
+                                                          @bind-SelectedText="@SelectedIdentityUserTextShare"
                                                           Placeholder="&#8212;" />
                                             </Field>
                                             </Column>
@@ -331,7 +339,7 @@
                                <Row>
 
                                 <Column ColumnSize="ColumnSize.Is2">
-                                <Button Color="Color.Info" TextColor="TextColor.White" Size="Size.Small" Clicked="AddIdentityUser">
+                            <Button Color="Color.Info" TextColor="TextColor.White" Size="Size.Small" Clicked="AddIdentityUserShare">
                                 <Icon class="fa fa-plus"></Icon> @L["Add"]
                                 </Button>
                                 </Column>

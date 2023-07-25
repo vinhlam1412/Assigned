@@ -7,7 +7,6 @@ using Volo.Abp.AspNetCore.Mvc;
 using Volo.Abp.Application.Dtos;
 using HQSOFT.Common.HQAssigneds;
 using Volo.Abp.Content;
-using HQSOFT.Common.Shared;
 
 namespace HQSOFT.Common.HQAssigneds
 {
