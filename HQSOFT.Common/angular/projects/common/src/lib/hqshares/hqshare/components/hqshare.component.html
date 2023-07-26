@@ -122,11 +122,11 @@
           </div>
           <div class="col-12 col-sm-auto">
             <div class="mb-3">
-              <label class="form-label" for="identityUsersFilter">
+              <label class="form-label" for="identityUserIdFilter">
                 {{ 'Common::IdentityUser' | abpLocalization }}
               </label>
               <abp-lookup-typeahead
-                cid="identityUsersFilter"
+                cid="identityUserIdFilter"
                 displayNameProp="email"
                 [getFn]="service.getIdentityUserLookup"
                 [(ngModel)]="filters.identityUserId"
@@ -315,6 +315,15 @@
             </ng-template>
           </ng-template>
         </ngx-datatable-column>
+
+        <ngx-datatable-column
+          name="{{ 'Common::IdentityUser' | abpLocalization }}"
+          prop="identityUser.email"
+        >
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            {{ row.identityUser?.email }}
+          </ng-template>
+        </ngx-datatable-column>
       </ngx-datatable>
     </div>
   </div>
@@ -329,97 +338,75 @@
 
   <ng-template #abpBody>
     <form [formGroup]="form" id="hqshare" (ngSubmit)="submitForm()" validateOnSubmit>
-      <ul ngbNav #nav="ngbNav" class="nav-tabs">
-        <li ngbNavItem>
-          <a ngbNavLink>
-            {{ 'HQShare' | abpLocalization }}
-          </a>
-          <ng-template ngbNavContent>
-            <div class="mt-2 fade-in-top">
-              <div class="mb-3">
-                <label class="form-label" for="hqshare-idparent">
-                  {{ 'Common::IDParent' | abpLocalization }}
-                </label>
+      <div class="mt-2 fade-in-top">
+        <div class="mb-3">
+          <label class="form-label" for="hqshare-idparent">
+            {{ 'Common::IDParent' | abpLocalization }}
+          </label>
 
-                <input
-                  id="hqshare-idparent"
-                  formControlName="idParent"
-                  class="form-control"
-                  autofocus
-                />
-              </div>
-              <div class="form-check mb-3">
-                <input
-                  type="checkbox"
-                  id="hqshare-can-read"
-                  formControlName="canRead"
-                  class="form-check-input"
-                />
+          <input id="hqshare-idparent" formControlName="idParent" class="form-control" autofocus />
+        </div>
+        <div class="form-check mb-3">
+          <input
+            type="checkbox"
+            id="hqshare-can-read"
+            formControlName="canRead"
+            class="form-check-input"
+          />
 
-                <label for="hqshare-can-read" class="form-check-label">
-                  {{ 'Common::CanRead' | abpLocalization }}
-                </label>
-              </div>
-              <div class="form-check mb-3">
-                <input
-                  type="checkbox"
-                  id="hqshare-can-write"
-                  formControlName="canWrite"
-                  class="form-check-input"
-                />
+          <label for="hqshare-can-read" class="form-check-label">
+            {{ 'Common::CanRead' | abpLocalization }}
+          </label>
+        </div>
+        <div class="form-check mb-3">
+          <input
+            type="checkbox"
+            id="hqshare-can-write"
+            formControlName="canWrite"
+            class="form-check-input"
+          />
 
-                <label for="hqshare-can-write" class="form-check-label">
-                  {{ 'Common::CanWrite' | abpLocalization }}
-                </label>
-              </div>
-              <div class="form-check mb-3">
-                <input
-                  type="checkbox"
-                  id="hqshare-can-submit"
-                  formControlName="canSubmit"
-                  class="form-check-input"
-                />
+          <label for="hqshare-can-write" class="form-check-label">
+            {{ 'Common::CanWrite' | abpLocalization }}
+          </label>
+        </div>
+        <div class="form-check mb-3">
+          <input
+            type="checkbox"
+            id="hqshare-can-submit"
+            formControlName="canSubmit"
+            class="form-check-input"
+          />
 
-                <label for="hqshare-can-submit" class="form-check-label">
-                  {{ 'Common::CanSubmit' | abpLocalization }}
-                </label>
-              </div>
-              <div class="form-check mb-3">
-                <input
-                  type="checkbox"
-                  id="hqshare-can-share"
-                  formControlName="canShare"
-                  class="form-check-input"
-                />
+          <label for="hqshare-can-submit" class="form-check-label">
+            {{ 'Common::CanSubmit' | abpLocalization }}
+          </label>
+        </div>
+        <div class="form-check mb-3">
+          <input
+            type="checkbox"
+            id="hqshare-can-share"
+            formControlName="canShare"
+            class="form-check-input"
+          />
 
-                <label for="hqshare-can-share" class="form-check-label">
-                  {{ 'Common::CanShare' | abpLocalization }}
-                </label>
-              </div>
-            </div>
-          </ng-template>
-        </li>
-
-        <li ngbNavItem>
-          <a ngbNavLink>
-            {{ 'IdentityUsers' | abpLocalization }}
-            <span *ngIf="this.form.controls['identityUserIds']">
-              ({{ this.form.controls['identityUserIds'].value?.length }})
-            </span>
-          </a>
-          <ng-template ngbNavContent>
-            <abp-lookup-typeahead-mtm
-              cid="hqshare-identity-users"
-              formControlName="identityUserIds"
-              displayNameProp="email"
-              lookupNameProp="displayName"
-              [getFn]="service.getIdentityUserLookup"
-              [editingData]="selected?.identityUsers"
-            ></abp-lookup-typeahead-mtm>
-          </ng-template>
-        </li>
-      </ul>
-      <div [ngbNavOutlet]="nav"></div>
+          <label for="hqshare-can-share" class="form-check-label">
+            {{ 'Common::CanShare' | abpLocalization }}
+          </label>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="hqshare-identity-user-id">
+            {{ 'Common::IdentityUser' | abpLocalization }}
+          </label>
+          <abp-lookup-typeahead
+            cid="hqshare-identity-user-id"
+            formControlName="identityUserId"
+            displayNameProp="email"
+            [getFn]="service.getIdentityUserLookup"
+            [editingData]="selected?.identityUser"
+          ></abp-lookup-typeahead>
+        </div>
+      </div>
     </form>
   </ng-template>
 

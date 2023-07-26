@@ -12,7 +12,7 @@ namespace HQSOFT.Common.HQShares
         public bool CanWrite { get; set; }
         public bool CanSubmit { get; set; }
         public bool CanShare { get; set; }
-        public List<Guid> IdentityUserIds { get; set; }
+        public Guid? IdentityUserId { get; set; }
 
         public string ConcurrencyStamp { get; set; }
     }

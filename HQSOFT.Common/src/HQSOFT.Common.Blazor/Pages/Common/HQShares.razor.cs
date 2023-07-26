@@ -37,13 +37,8 @@ namespace HQSOFT.Common.Blazor.Pages.Common
         private DataGridEntityActionsColumn<HQShareWithNavigationPropertiesDto> EntityActionsColumn { get; set; } = new();
         protected string SelectedCreateTab = "hQShare-create-tab";
         protected string SelectedEditTab = "hQShare-edit-tab";
-        private IReadOnlyList<LookupDto<Guid>> IdentityUsers { get; set; } = new List<LookupDto<Guid>>();
-        
-        private string SelectedIdentityUserId { get; set; }
-        
-        private string SelectedIdentityUserText { get; set; }
+        private IReadOnlyList<LookupDto<Guid>> UsersCollection { get; set; } = new List<LookupDto<Guid>>();
 
-        private List<LookupDto<Guid>> SelectedIdentityUsers { get; set; } = new List<LookupDto<Guid>>();
         public HQShares()
         {
             NewHQShare = new HQShareCreateDto();
@@ -131,9 +126,6 @@ namespace HQSOFT.Common.Blazor.Pages.Common
 
         private async Task OpenCreateHQShareModalAsync()
         {
-            SelectedIdentityUsers = new List<LookupDto<Guid>>();
-            
-
             NewHQShare = new HQShareCreateDto{
                 
                 
@@ -157,8 +149,6 @@ namespace HQSOFT.Common.Blazor.Pages.Common
             
             EditingHQShareId = hQShare.HQShare.Id;
             EditingHQShare = ObjectMapper.Map<HQShareDto, HQShareUpdateDto>(hQShare.HQShare);
-            SelectedIdentityUsers = hQShare.IdentityUsers.Select(a => new LookupDto<Guid>{ Id = a.Id, DisplayName = a.Email}).ToList();
-
             await EditingHQShareValidations.ClearAll();
             await EditHQShareModal.Show();
         }
@@ -177,8 +167,6 @@ namespace HQSOFT.Common.Blazor.Pages.Common
                 {
                     return;
                 }
-                NewHQShare.IdentityUserIds = SelectedIdentityUsers.Select(x => x.Id).ToList();
-
 
                 await HQSharesAppService.CreateAsync(NewHQShare);
                 await GetHQSharesAsync();
@@ -203,8 +191,6 @@ namespace HQSOFT.Common.Blazor.Pages.Common
                 {
                     return;
                 }
-                EditingHQShare.IdentityUserIds = SelectedIdentityUsers.Select(x => x.Id).ToList();
-
 
                 await HQSharesAppService.UpdateAsync(EditingHQShareId, EditingHQShare);
                 await GetHQSharesAsync();
@@ -227,29 +213,9 @@ namespace HQSOFT.Common.Blazor.Pages.Common
         }
         
 
-        private async Task GetIdentityUserLookupAsync(string? newValue = null)
+        private async Task GetIdentityUserCollectionLookupAsync(string? newValue = null)
         {
-            IdentityUsers = (await HQSharesAppService.GetIdentityUserLookupAsync(new LookupRequestDto { Filter = newValue })).Items;
-        }
-
-        private void AddIdentityUser()
-        {
-            if (SelectedIdentityUserId.IsNullOrEmpty())
-            {
-                return;
-            }
-            
-            if (SelectedIdentityUsers.Any(p => p.Id.ToString() == SelectedIdentityUserId))
-            {
-                UiMessageService.Warn(L["ItemAlreadyAdded"]);
-                return;
-            }
-
-            SelectedIdentityUsers.Add(new LookupDto<Guid>
-            {
-                Id = Guid.Parse(SelectedIdentityUserId),
-                DisplayName = SelectedIdentityUserText
-            });
+            UsersCollection = (await HQSharesAppService.GetIdentityUserLookupAsync(new LookupRequestDto { Filter = newValue })).Items;
         }
 
     }

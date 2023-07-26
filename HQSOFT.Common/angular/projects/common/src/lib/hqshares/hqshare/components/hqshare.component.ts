@@ -64,9 +64,8 @@ export class HQShareComponent implements OnInit {
   }
 
   buildForm() {
-    const { idParent, canRead, canWrite, canSubmit, canShare } = this.selected?.hqShare || {};
-
-    const { identityUsers = [] } = this.selected || {};
+    const { idParent, canRead, canWrite, canSubmit, canShare, identityUserId } =
+      this.selected?.hqShare || {};
 
     this.form = this.fb.group({
       idParent: [idParent ?? null, []],
@@ -74,7 +73,7 @@ export class HQShareComponent implements OnInit {
       canWrite: [canWrite ?? false, []],
       canSubmit: [canSubmit ?? false, []],
       canShare: [canShare ?? false, []],
-      identityUserIds: [identityUsers.map(({ id }) => id), []],
+      identityUserId: [identityUserId ?? null, []],
     });
   }
 
@@ -114,10 +113,8 @@ export class HQShareComponent implements OnInit {
   }
 
   update(record: HQShareWithNavigationPropertiesDto) {
-    this.service.getWithNavigationProperties(record.hqShare.id).subscribe(data => {
-      this.selected = data;
-      this.showForm();
-    });
+    this.selected = record;
+    this.showForm();
   }
 
   delete(record: HQShareWithNavigationPropertiesDto) {

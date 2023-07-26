@@ -10,7 +10,7 @@ namespace HQSOFT.Common.HQShares
     {
         public HQShareDto HQShare { get; set; }
 
-        public List<IdentityUserDto> IdentityUsers { get; set; }
+        public IdentityUserDto IdentityUser { get; set; }
 
     }
 }

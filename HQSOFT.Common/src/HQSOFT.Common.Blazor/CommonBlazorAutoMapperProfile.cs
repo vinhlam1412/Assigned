@@ -21,7 +21,8 @@ public class CommonBlazorAutoMapperProfile : Profile
         CreateMap<HQAssignedDto, HQAssignedUpdateDto>().Ignore(x => x.IdentityUserIds);
         CreateMap<HQAssignedUpdateDto, HQAssignedCreateDto>().Ignore(x => x.IdentityUserIds);
 
-        CreateMap<HQShareDto, HQShareUpdateDto>().Ignore(x => x.IdentityUserIds);
-        CreateMap<HQShareUpdateDto, HQShareCreateDto>().Ignore(x => x.IdentityUserIds);
+
+        CreateMap<HQShareDto, HQShareUpdateDto>();
+        CreateMap<HQShareUpdateDto, HQShareCreateDto>();
     }
 }

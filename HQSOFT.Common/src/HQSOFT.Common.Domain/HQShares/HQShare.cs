@@ -1,3 +1,4 @@
+using Volo.Abp.Identity;
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -23,15 +24,14 @@ namespace HQSOFT.Common.HQShares
         public virtual bool CanSubmit { get; set; }
 
         public virtual bool CanShare { get; set; }
-
-        public ICollection<HQShareIdentityUser> IdentityUsers { get; private set; }
+        public Guid? IdentityUserId { get; set; }
 
         public HQShare()
         {
 
         }
 
-        public HQShare(Guid id, string iDParent, bool canRead, bool canWrite, bool canSubmit, bool canShare)
+        public HQShare(Guid id, Guid? identityUserId, string iDParent, bool canRead, bool canWrite, bool canSubmit, bool canShare)
         {
 
             Id = id;
@@ -40,47 +40,8 @@ namespace HQSOFT.Common.HQShares
             CanWrite = canWrite;
             CanSubmit = canSubmit;
             CanShare = canShare;
-            IdentityUsers = new Collection<HQShareIdentityUser>();
-        }
-        public void AddIdentityUser(Guid identityUserId)
-        {
-            Check.NotNull(identityUserId, nameof(identityUserId));
-
-            if (IsInIdentityUsers(identityUserId))
-            {
-                return;
-            }
-
-            IdentityUsers.Add(new HQShareIdentityUser(Id, identityUserId));
+            IdentityUserId = identityUserId;
         }
 
-        public void RemoveIdentityUser(Guid identityUserId)
-        {
-            Check.NotNull(identityUserId, nameof(identityUserId));
-
-            if (!IsInIdentityUsers(identityUserId))
-            {
-                return;
-            }
-
-            IdentityUsers.RemoveAll(x => x.IdentityUserId == identityUserId);
-        }
-
-        public void RemoveAllIdentityUsersExceptGivenIds(List<Guid> identityUserIds)
-        {
-            Check.NotNullOrEmpty(identityUserIds, nameof(identityUserIds));
-
-            IdentityUsers.RemoveAll(x => !identityUserIds.Contains(x.IdentityUserId));
-        }
-
-        public void RemoveAllIdentityUsers()
-        {
-            IdentityUsers.RemoveAll(x => x.HQShareId == Id);
-        }
-
-        private bool IsInIdentityUsers(Guid identityUserId)
-        {
-            return IdentityUsers.Any(x => x.IdentityUserId == identityUserId);
-        }
     }
 }

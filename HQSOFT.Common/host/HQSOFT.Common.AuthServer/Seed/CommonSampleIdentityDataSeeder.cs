@@ -41,6 +41,7 @@ public class CommonSampleIdentityDataSeeder : ITransientDependency
     {
         await CreateUserAsync("john", "John", "Nash", context);
         await CreateUserAsync("albert", "Albert", "Einstein", context);
+        await CreateUserAsync("vinh", "Vinh", "Lam", context);
     }
 
     private async Task CreateUserAsync(string userName, string name, string surname, DataSeedContext context)

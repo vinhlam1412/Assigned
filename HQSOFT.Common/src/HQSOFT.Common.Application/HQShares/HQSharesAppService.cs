@@ -88,7 +88,7 @@ namespace HQSOFT.Common.HQShares
         {
 
             var hQShare = await _hQShareManager.CreateAsync(
-            input.IdentityUserIds, input.IDParent, input.CanRead, input.CanWrite, input.CanSubmit, input.CanShare
+            input.IdentityUserId, input.IDParent, input.CanRead, input.CanWrite, input.CanSubmit, input.CanShare
             );
 
             return ObjectMapper.Map<HQShare, HQShareDto>(hQShare);
@@ -100,7 +100,7 @@ namespace HQSOFT.Common.HQShares
 
             var hQShare = await _hQShareManager.UpdateAsync(
             id,
-            input.IdentityUserIds, input.IDParent, input.CanRead, input.CanWrite, input.CanSubmit, input.CanShare, input.ConcurrencyStamp
+            input.IdentityUserId, input.IDParent, input.CanRead, input.CanWrite, input.CanSubmit, input.CanShare, input.ConcurrencyStamp
             );
 
             return ObjectMapper.Map<HQShare, HQShareDto>(hQShare);
@@ -123,6 +123,8 @@ namespace HQSOFT.Common.HQShares
                 CanWrite = item.HQShare.CanWrite,
                 CanSubmit = item.HQShare.CanSubmit,
                 CanShare = item.HQShare.CanShare,
+
+                IdentityUser = item.IdentityUser?.Email,
 
             });
 
@@ -151,15 +153,15 @@ namespace HQSOFT.Common.HQShares
             };
         }
 
-        public async Task<HQShareDto> GetParentAsync(string id)
+        public async Task<List<HQShareDto>> GetParentAsync(string id)
         {
-            // Use the FindAsync method of _hQAssignedRepository to retrieve the HQAssigned entity with an IDParent that matches the given id.
-            HQShare entity = await _hQShareRepository.FindAsync(x => x.IDParent.ToLower() == id.ToLower());
+            // Use the FindAsync method of _hQShareRepository to retrieve the HQShare entity with an IDParent that matches the given id.
+           var entity = await _hQShareRepository.GetListAsync(x => x.IDParent.ToLower() == id.ToLower());
 
             // Use the ObjectMapper to map the retrieved entity to a HQAssignedDto object.
-            HQShareDto dto = ObjectMapper.Map<HQShare, HQShareDto>(entity);
+           List<HQShareDto> dto = ObjectMapper.Map<List<HQShare>, List<HQShareDto>>(entity);
 
-            // Return the mapped HQAssignedDto object.
+            // Return the mapped HQShareDto object.
             return dto;
         }
     }

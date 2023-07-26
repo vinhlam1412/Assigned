@@ -15,9 +15,6 @@ namespace HQSOFT.Common.Web.Pages.Common.HQShares
         [BindProperty]
         public HQShareCreateViewModel HQShare { get; set; }
 
-        [BindProperty]
-        public List<Guid> SelectedIdentityUserIds { get; set; }
-
         private readonly IHQSharesAppService _hQSharesAppService;
 
         public CreateModalModel(IHQSharesAppService hQSharesAppService)
@@ -36,8 +33,6 @@ namespace HQSOFT.Common.Web.Pages.Common.HQShares
 
         public async Task<IActionResult> OnPostAsync()
         {
-
-            HQShare.IdentityUserIds = SelectedIdentityUserIds;
 
             await _hQSharesAppService.CreateAsync(ObjectMapper.Map<HQShareCreateViewModel, HQShareCreateDto>(HQShare));
             return NoContent();

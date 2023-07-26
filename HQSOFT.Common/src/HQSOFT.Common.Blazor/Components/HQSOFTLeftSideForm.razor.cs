@@ -1,4 +1,5 @@
 ﻿using Blazorise;
+using HQSOFT.Common.Blazor.Pages.Common;
 using HQSOFT.Common.HQAssigneds;
 using HQSOFT.Common.HQShares;
 using HQSOFT.Common.HQTasks;
@@ -15,6 +16,8 @@ using System.Threading.Tasks;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.AspNetCore.Components.Web.Theming.PageToolbars;
 using Volo.Abp.BlazoriseUI.Components;
+using Volo.Abp.Data;
+using Volo.Abp.ObjectExtending;
 using Volo.Abp.ObjectMapping;
 using static HQSOFT.Common.Permissions.CommonPermissions;
 
@@ -56,12 +59,14 @@ namespace HQSOFT.Common.Blazor.Components
         private string SelectedIdentityUserIdShare { get; set; }
 
         private List<LookupDto<Guid>> SelectedIdentityAssignedUsers { get; set; } = new List<LookupDto<Guid>>();
-        private List<LookupDto<Guid>> SelectedIdentityShareUsers{ get; set; } = new List<LookupDto<Guid>>();
+        private LookupDto<Guid> SelectedIdentityShareUsers { get; set; } = new LookupDto<Guid>();
 
-
+        private IReadOnlyList<LookupDto<Guid>> ShareUsersCollection { get; set; } = new List<LookupDto<Guid>>();
         //-----------------------
         private HQShareCreateDto NewHQShare { get; set; }
         private HQShareUpdateDto EditingHQShare { get; set; }
+
+        private List<HQShareWithNavigationPropertiesDto> ListHQShare { get; set; }
         private HQShareUpdateDto EditingHQShareAll { get; set; }
         private HQShareUpdateDto EditingHQShareAdd { get; set; }
         private Validations EditingHQShareValidations { get; set; } = new();
@@ -70,6 +75,8 @@ namespace HQSOFT.Common.Blazor.Components
         private GetHQSharesInput FilterShare { get; set; }
 
         public bool checkvalue { get; set; }
+
+        List<HQShareWithNavigationPropertiesDto> listHQShare { get; set; }
 
 
         //-----------------------
@@ -105,7 +112,11 @@ namespace HQSOFT.Common.Blazor.Components
             };
             HQAssignedList = new List<HQAssignedWithNavigationPropertiesDto>();
             HQShareList = new List<HQShareWithNavigationPropertiesDto>();
-            IdentityUsers =  new List<LookupDto<Guid>>();
+            IdentityUsers = new List<LookupDto<Guid>>();
+
+            listHQShare = new List<HQShareWithNavigationPropertiesDto>();
+
+            ListHQShare = new List<HQShareWithNavigationPropertiesDto>();
         }
         protected override async Task OnInitializedAsync()
         {
@@ -122,20 +133,15 @@ namespace HQSOFT.Common.Blazor.Components
                 EditingHQShare.IDParent = Value;
                 EditingHQShareAdd.IDParent = Value;
                 var hQAssigment = await HQAssignedsAppService.GetParentAsync(Value);
-                var hQShare = await HQSharesAppService.GetParentAsync(Value);
+
                 if (hQAssigment != null)
                 {
                     //Lấy ra detail của assignment đó: 
                     // HQAssigment
                     // HQTask 
                     // List user
-                    var hQAssigmentDetail = await HQAssignedsAppService.GetWithNavigationPropertiesAsync(hQAssigment.Id);                
+                    var hQAssigmentDetail = await HQAssignedsAppService.GetWithNavigationPropertiesAsync(hQAssigment.Id);
                     SelectedIdentityAssignedUsers = hQAssigmentDetail.IdentityUsers.Select(a => new LookupDto<Guid> { Id = a.Id, DisplayName = a.Email }).ToList();
-                }
-                if (hQShare != null)
-                {
-                    var hQShareDetail = await HQSharesAppService.GetWithNavigationPropertiesAsync(hQShare.Id);
-                    SelectedIdentityShareUsers = hQShareDetail.IdentityUsers.Select(a => new LookupDto<Guid> { Id = a.Id, DisplayName = a.Email }).ToList();
                 }
             };
             SelectedIdentityUserId = new List<string>();
@@ -163,10 +169,10 @@ namespace HQSOFT.Common.Blazor.Components
         }
 
         private async Task OpenEditHQAssignedModalAsync()
-         {
+        {
             //Truyền vào ParentID để lấy assingment xem đã tồn tại chưa
             var hQAssigment = await HQAssignedsAppService.GetParentAsync(Value);
-            
+
             //Tồn tại
             if (hQAssigment != null)
             {
@@ -185,7 +191,7 @@ namespace HQSOFT.Common.Blazor.Components
 
                 //Map NewHQAssigment từ Update sang Create
                 NewHQAssigned = ObjectMapper.Map<HQAssignedUpdateDto, HQAssignedCreateDto>(EditingHQAssigned);
-                SelectedIdentityAssignedUsers = hQAssigmentDetail.IdentityUsers.Select(a => new LookupDto<Guid>{ Id = a.Id, DisplayName = a.Email}).ToList();
+                SelectedIdentityAssignedUsers = hQAssigmentDetail.IdentityUsers.Select(a => new LookupDto<Guid> { Id = a.Id, DisplayName = a.Email }).ToList();
             }
 
             //Không tồn tại
@@ -197,7 +203,7 @@ namespace HQSOFT.Common.Blazor.Components
                 NewHQAssigned = new HQAssignedCreateDto
                 {
                     Completeby = DateTime.Now,
-                    
+
 
 
                 };
@@ -208,31 +214,61 @@ namespace HQSOFT.Common.Blazor.Components
 
         private async Task OpenEditHQShareModalAsync()
         {
-            var hQShare = await HQSharesAppService.GetParentAsync(Value);
+            ListHQShare.Clear();
+            List<HQShareDto> hqShareWithParent = await HQSharesAppService.GetParentAsync(Value);
 
-            if(hQShare != null)
+            if (hqShareWithParent != null)
             {
-                var hQShareDetail = await HQSharesAppService.GetWithNavigationPropertiesAsync(hQShare.Id);
+                foreach (var item in hqShareWithParent)
+                {
+                    var hQShare = await HQSharesAppService.GetWithNavigationPropertiesAsync(item.Id);
 
-                EditingHQShareId = hQShareDetail.HQShare.Id;
-                EditingHQShare = ObjectMapper.Map<HQShareDto, HQShareUpdateDto>(hQShareDetail.HQShare);
+                    EditingHQShareId = hQShare.HQShare.Id;
+                    EditingHQShare = ObjectMapper.Map<HQShareDto, HQShareUpdateDto>(hQShare.HQShare);
 
-                NewHQShare = ObjectMapper.Map<HQShareUpdateDto,HQShareCreateDto>(EditingHQShare);
-                SelectedIdentityShareUsers = hQShareDetail.IdentityUsers.Select(a => new LookupDto<Guid> { Id = a.Id, DisplayName = a.Email }).ToList();
+                    ListHQShare.Add(hQShare);
+                }
+
             }
             else
             {
-                //Tạo mới list user và Share
-                SelectedIdentityShareUsers = new List<LookupDto<Guid>>();
-
                 EditingHQShare = new HQShareUpdateDto
                 {
-                    
+
+
                 };
-            }
-            await EditingHQShareValidations.ClearAll();
+            }         
             await EditHQShareModal.Show();
         }
+
+        private async Task ClearEdittingHQShare()
+        {
+            if (EditingHQShare != null)
+            {
+                 EditingHQShare.CanShare =  false;
+                 EditingHQShare.CanRead = false;
+                 EditingHQShare.CanWrite = false;
+                 EditingHQShare.CanSubmit = false;
+                 EditingHQShare.IdentityUserId = null;
+            }
+        }
+
+        private async Task LoadListShareUserAsync()
+        {
+            ListHQShare.Clear();
+            List<HQShareDto> hqShareWithParent = await HQSharesAppService.GetParentAsync(Value);
+
+            if (hqShareWithParent != null)
+            {
+                foreach (var item in hqShareWithParent)
+                {
+                    var hQShare = await HQSharesAppService.GetWithNavigationPropertiesAsync(item.Id);
+                    ListHQShare.Add(hQShare);
+                }
+
+            }
+        }
+
 
         private async Task CloseCreateHQAssignedModalAsync()
         {
@@ -241,6 +277,7 @@ namespace HQSOFT.Common.Blazor.Components
 
         private async Task CloseEditHQShareModalAsync()
         {
+            ListHQShare.Clear();
             await EditHQShareModal.Hide();
         }
 
@@ -258,7 +295,7 @@ namespace HQSOFT.Common.Blazor.Components
                 //Create new Assigned if Parent dont have Assigned
                 if (EditingHQAssignedId == Guid.Empty)
                 {
-                    NewHQAssigned = ObjectMapper.Map<HQAssignedUpdateDto,HQAssignedCreateDto>(EditingHQAssigned);
+                    NewHQAssigned = ObjectMapper.Map<HQAssignedUpdateDto, HQAssignedCreateDto>(EditingHQAssigned);
                     AddIdentityUserAssigned();
                     NewHQAssigned.IdentityUserIds = SelectedIdentityAssignedUsers.Select(x => x.Id).ToList();
                     EditingHQAssigned.IDParent = Value;
@@ -268,10 +305,10 @@ namespace HQSOFT.Common.Blazor.Components
                 //Update Assigned if Parent have Assigned
                 else
                 {
-                   await UpdateHQAssigmentAsync();
+                    await UpdateHQAssigmentAsync();
 
                 }
-                await GetHQAssigmentsAsync();
+               
                 await CloseCreateHQAssignedModalAsync();
             }
             catch (Exception ex)
@@ -284,42 +321,42 @@ namespace HQSOFT.Common.Blazor.Components
         {
             try
             {
-                if (await EditingHQShareValidations.ValidateAll() == false)
+                if (EditingHQShare.IdentityUserId == null)
                 {
                     return;
                 }
-                NewHQShare.IdentityUserIds = SelectedIdentityShareUsers.Select(x => x.Id).ToList();
-
-                if(EditingHQShareId == Guid.Empty)
-                {
-                    NewHQShare = ObjectMapper.Map<HQShareUpdateDto, HQShareCreateDto>(EditingHQShareAdd);
-                    EditingHQShareAdd.CanRead = true;
-                    EditingHQShareAdd.IdentityUserIds = SelectedIdentityShareUsers.Select(x => x.Id).ToList();
-                    EditingHQShareAdd.IDParent = Value;
-                    await HQSharesAppService.CreateAsync(NewHQShare);
-                }
                 else
                 {
-                    await UpdateHQShareAsync();
-
+                    NewHQShare = ObjectMapper.Map<HQShareUpdateDto, HQShareCreateDto>(EditingHQShare);
+                    NewHQShare.IDParent = Value;
+                    await HQSharesAppService.CreateAsync(NewHQShare);
+                    //await GetHQSharesAsync();
+                    await LoadListShareUserAsync();
+                    await EditingHQShareValidations.ClearAll();
+                    await ClearEdittingHQShare();
                 }
-
-                await GetHQSharesAsync();
-                await CloseEditHQShareModalAsync();
             }
             catch (Exception ex)
             {
                 await HandleErrorAsync(ex);
             }
+            
+
         }
 
-        private async Task 
-            GetIdentityUserLookupAsync(string? newValue = null)
+
+
+        private async Task GetIdentityUserLookupAsync(string? newValue = null)
         {
             IdentityUsers = (await HQAssignedsAppService.GetIdentityUserLookupAsync(new LookupRequestDto { Filter = newValue })).Items;
         }
 
-     
+        private async Task GetIdentityUserCollectionLookupAsync(string? newValue = null)
+        {
+            ShareUsersCollection = (await HQSharesAppService.GetIdentityUserLookupAsync(new LookupRequestDto { Filter = newValue })).Items;
+        }
+
+
         private async Task UpdateHQAssigmentAsync()
         {
             try
@@ -348,9 +385,13 @@ namespace HQSOFT.Common.Blazor.Components
                 {
                     return;
                 }
-                EditingHQShare.IdentityUserIds = SelectedIdentityShareUsers.Select(x => x.Id).ToList();
-                await HQSharesAppService.UpdateAsync(EditingHQShareId, EditingHQShare);
-                await GetHQSharesAsync();
+                foreach(var item in ListHQShare)
+                {
+                    EditingHQShareId = item.HQShare.Id;
+                    EditingHQShare = ObjectMapper.Map<HQShareDto, HQShareUpdateDto>(item.HQShare);
+                    await HQSharesAppService.UpdateAsync(EditingHQShareId, EditingHQShare);
+                    await GetHQSharesAsync();
+                }             
                 await EditHQShareModal.Hide();
             }
             catch (Exception ex)
@@ -358,6 +399,8 @@ namespace HQSOFT.Common.Blazor.Components
                 await HandleErrorAsync(ex);
             }
         }
+
+
 
         private void AddIdentityUserAssigned()
         {
@@ -388,25 +431,25 @@ namespace HQSOFT.Common.Blazor.Components
             }
         }
 
-        private void AddIdentityUserShare()
-        {
-            if (SelectedIdentityUserIdShare.IsNullOrEmpty())
-            {
-                return;
-            }
+        //private void AddIdentityUserShare()
+        //{
+        //    if (SelectedIdentityUserIdShare.IsNullOrEmpty())
+        //    {
+        //        return;
+        //    }
 
-            if (SelectedIdentityShareUsers.Any(p => p.Id.ToString() == SelectedIdentityUserIdShare))
-            {
-                UiMessageService.Warn(L["ItemAlreadyAdded"]);
-                return;
-            }
+        //    if (SelectedIdentityShareUsers.Any(p => p.Id.ToString() == SelectedIdentityUserIdShare))
+        //    {
+        //        UiMessageService.Warn(L["ItemAlreadyAdded"]);
+        //        return;
+        //    }
 
-            SelectedIdentityShareUsers.Add(new LookupDto<Guid>
-            {
-                Id = Guid.Parse(SelectedIdentityUserIdShare),
-                DisplayName = SelectedIdentityUserTextShare
-            });
-        }
+        //    SelectedIdentityShareUsers.Add(new LookupDto<Guid>
+        //    {
+        //        Id = Guid.Parse(SelectedIdentityUserIdShare),
+        //        DisplayName = SelectedIdentityUserTextShare
+        //    });
+        //}
 
     }
 }

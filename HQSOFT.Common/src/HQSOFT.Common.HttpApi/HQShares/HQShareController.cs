@@ -8,6 +8,7 @@ using Volo.Abp.Application.Dtos;
 using HQSOFT.Common.HQShares;
 using Volo.Abp.Content;
 using HQSOFT.Common.Shared;
+using System.Collections.Generic;
 
 namespace HQSOFT.Common.HQShares
 {
@@ -86,8 +87,8 @@ namespace HQSOFT.Common.HQShares
         }
 
         [HttpGet]
-        [Route("getIDParentShare/{id}")]
-        public Task<HQShareDto> GetParentAsync(string id)
+        [Route("getShare-parentId/{id}")]
+        public Task<List<HQShareDto>> GetParentAsync(string id)
         {
             return _hQSharesAppService.GetParentAsync(id);
         }

@@ -25,7 +25,7 @@ namespace HQSOFT.Common.HQShares
             {
                 // Act
                 var result = await _hQShareRepository.GetListAsync(
-                    iDParent: "a54d307ca4544bc68fc6e9b5d70b651bcd34",
+                    iDParent: "a7952fe98f8645f3856ce6da3e84bc03bd10df7ba2bd4f5c9ce4d0782",
                     canRead: true,
                     canWrite: true,
                     canSubmit: true,
@@ -35,7 +35,7 @@ namespace HQSOFT.Common.HQShares
                 // Assert
                 result.Count.ShouldBe(1);
                 result.FirstOrDefault().ShouldNotBe(null);
-                result.First().Id.ShouldBe(Guid.Parse("716dafda-eddc-4e4b-8418-1a0a6b40466d"));
+                result.First().Id.ShouldBe(Guid.Parse("c69ece73-14fc-431f-b429-5dbe5cedcef4"));
             });
         }
 
@@ -47,7 +47,7 @@ namespace HQSOFT.Common.HQShares
             {
                 // Act
                 var result = await _hQShareRepository.GetCountAsync(
-                    iDParent: "2552b6bb0625446c8c3e129d20aba84d443c5984c6974e85aabefd3bf4eb767eda5ae011380b4e76a57c07c91e5e",
+                    iDParent: "1609b18",
                     canRead: true,
                     canWrite: true,
                     canSubmit: true,

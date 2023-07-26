@@ -66,14 +66,14 @@
         <Button Color="Color.Dark" Style="margin-top: 20px; width:100%" Outline Clicked="OpenEditHQShareModalAsync">
             <Icon Name="IconName.PlusCircle" />
         </Button>
-        @foreach (var item in SelectedIdentityShareUsers)
+       @* @foreach (var item in SelectedIdentityShareUsers)
         {
             <Field>
                 <Text>
                     @item.DisplayName
                 </Text>
             </Field>
-        }
+        }*@
         <Row Style="margin-top:100px"></Row>
         <Icon Name="IconName.Comment" />
         <Text Style="margin:10px">0</Text>
@@ -203,156 +203,114 @@
 
 
 @* ************************* EDIT MODAL SHARE ************************* *@
-<Modal @ref="EditHQShareModal" Closing="@EditHQShareModal.CancelClosingModalWhenFocusLost" >
-    <ModalContent Centered="true"Size="ModalSize.Large">
+<Modal @ref="EditHQShareModal" Closing="@EditHQShareModal.CancelClosingModalWhenFocusLost">
+    <ModalContent Centered="true">
         <Form id="EditHQShareForm">
             <ModalHeader>
                 <ModalTitle>@L["Update"]</ModalTitle>
                 <CloseButton Clicked="CloseEditHQShareModalAsync" />
             </ModalHeader>
             <ModalBody>
-              
-                        <Validations @ref="@EditingHQShareValidations"
-                                     Mode="ValidationMode.Auto"
-                                     Model="@EditingHQShare"
-                                     ValidateOnLoad="false">
-                         <Row>
+                <Validations @ref="@EditingHQShareValidations"
+                             Mode="ValidationMode.Auto"
+                             Model="@EditingHQShare"
+                             ValidateOnLoad="false">                 
 
+                   @foreach(var item2 in ListHQShare )
+                   {
+                      <Row>
+                            <Column ColumnSize="ColumnSize.Is4">
+                                <Field>
+                                    <Text>@item2.IdentityUser.Email</Text>
+                                </Field>
+                            </Column>
 
-                                   <Column ColumnSize="ColumnSize.Is2">
-                                       <Row>User</Row>
-                                       <Row>Everyone</Row>
-                                   </Column>
-                                   <Column ColumnSize="ColumnSize.Is2">
-                                        <Field>
-                                <Check TValue="bool" @bind-Checked="@EditingHQShareAll.CanRead">@L["CanRead"]</Check>
-                                        </Field>
-                                   </Column>
+                            <Column ColumnSize="ColumnSize.Is2">
+                                <Field>
+                                    <Check TValue="bool" @bind-Checked="@item2.HQShare.CanRead">@L["CanRead"]</Check>
+                                </Field>
+                            </Column>
 
-                                            <Column ColumnSize="ColumnSize.Is2">
-                                        <Field>
-                                            <Check TValue="bool" @bind-Checked="@EditingHQShareAll.CanWrite">@L["CanWrite"]</Check>
-                                        </Field>
-                                    </Column>
+                             <Column ColumnSize="ColumnSize.Is2">
+                                <Field>
+                                    <Check TValue="bool" @bind-Checked="@item2.HQShare.CanWrite">@L["CanWrite"]</Check>
+                                </Field>
+                            </Column>
 
-                                            <Column ColumnSize="ColumnSize.Is2">
-                                        <Field>
-                                <Check TValue="bool" @bind-Checked="@EditingHQShareAll.CanSubmit">@L["CanSubmit"]</Check>
-                                        </Field>
-                                   </Column>
+                             <Column ColumnSize="ColumnSize.Is2">
+                                <Field>
+                                    <Check TValue="bool" @bind-Checked="@item2.HQShare.CanSubmit">@L["CanSubmit"]</Check>
+                                </Field>
+                            </Column>
 
-                                            <Column ColumnSize="ColumnSize.Is2">
-                                        <Field>
-                                <Check TValue="bool" @bind-Checked="@EditingHQShareAll.CanShare">@L["CanShare"]</Check>
-                                        </Field>
-                                    </Column>
-                        </Row>        
+                            <Column ColumnSize="ColumnSize.Is2">
+                                <Field>
+                                    <Check TValue="bool" @bind-Checked="@item2.HQShare.CanShare">@L["CanShare"]</Check>
+                                </Field>
+                            </Column>                                         
+                      </Row>
 
+                    
+                   }
 
-                                    @if (SelectedIdentityShareUsers.Any())
-                                {
-                                    <Table striped-rows="true" responsive-sm="true" class="mt-2">
-                                        <TableHeader>
-                                            <TableHeaderCell><Span class="float-start">@L["Email"]</Span></TableHeaderCell>
-                                        </TableHeader>
-                                        <TableBody>
-                                            @foreach (var identityUser in SelectedIdentityShareUsers)
-                                            {
-                                                <TableRow>
-                                                    <TableRowCell><Span class="float-start">@identityUser.DisplayName</Span></TableRowCell>
-                                                    <TableRowCell>
-                                                        <span class="btn btn-danger btn-sm float-end"
-                                                        @onclick="() => SelectedIdentityShareUsers.RemoveAll(s => s.Id == identityUser.Id)">
-                                                            <Icon Class="fa fa-trash"></Icon>
-                                                        </span>
-                                                    </TableRowCell>
-                                        <TableRowCell>
-                                            <Field>
-                                                <Check TValue="bool" @bind-Checked="@checkvalue">@L["CanRead"]</Check>
-                                            </Field>
-                                        </TableRowCell>
-                                        <TableRowCell>
-                                            <Field>
-                                                <Check TValue="bool" @bind-Checked="@EditingHQShare.CanWrite">@L["CanWrite"]</Check>
-                                            </Field>
-                                        </TableRowCell>
-                                        <TableRowCell>
-                                            <Field>
-                                                <Check TValue="bool" @bind-Checked="@EditingHQShare.CanSubmit">@L["CanSubmit"]</Check>
-                                            </Field>
-                                        </TableRowCell>
-                                        <TableRowCell>
-                                            <Field>
-                                                <Check TValue="bool" @bind-Checked="@EditingHQShare.CanShare">@L["CanShare"]</Check>
-                                            </Field>
-                                        </TableRowCell>
-                           
-                                                </TableRow>
-                                            }
-                                        </TableBody>
-                                    </Table>
-                                }
+                  <Validation>
+                        <Row>
+                            <Column ColumnSize="ColumnSize.Is4">
+                                    <Autocomplete Data="@ShareUsersCollection"
+                                                  TItem="LookupDto<Guid>"
+                                                  TValue="Guid?"
+                                                  TextField="@((item) => item?.DisplayName)"
+                                                  ValueField="@((item) => item?.Id )"
+                                                  SearchChanged="@GetIdentityUserCollectionLookupAsync"
+                                                  @bind-SelectedValue="@EditingHQShare.IdentityUserId"
+                                                  Placeholder="&#8212;" />
+                            </Column>
+                            <Column ColumnSize="ColumnSize.Is2">
+                                <Field>
+                                    <Check TValue="bool" @bind-Checked="@EditingHQShare.CanRead">@L["CanRead"]</Check>
+                                </Field>
+                            </Column>
 
-                               <Row>
-                                    <Column ColumnSize="ColumnSize.Is4">
-                                        <Field>
+                            <Column ColumnSize="ColumnSize.Is2">
+                                <Field>
+                                    <Check TValue="bool" @bind-Checked="@EditingHQShare.CanWrite">@L["CanWrite"]</Check>
+                                </Field>
+                            </Column>
 
-                                            <Autocomplete Data="@IdentityUsers"
-                                                          TItem="LookupDto<Guid>"
-                                                          TValue="string"
-                                                          TextField="@((item) => item.DisplayName)"
-                                                          ValueField="@((item) => item.Id.ToString())"
-                                                          SearchChanged="@GetIdentityUserLookupAsync"                                                      
-                                                         
-                                                          @bind-SelectedValue="@SelectedIdentityUserIdShare"
-                                                         
-                                                          @bind-SelectedText="@SelectedIdentityUserTextShare"
-                                                          Placeholder="&#8212;" />
-                                            </Field>
-                                            </Column>
+                            <Column ColumnSize="ColumnSize.Is2">
+                                <Field>
+                                    <Check TValue="bool" @bind-Checked="@EditingHQShare.CanSubmit">@L["CanSubmit"]</Check>
+                                </Field>
+                            </Column>
 
-                                         
-                                   <Column ColumnSize="ColumnSize.Is2">
-                                        <Field>
-                                <Check TValue="bool" @bind-Checked="@EditingHQShareAdd.CanRead">@L["CanRead"]</Check>
-                                        </Field>
-                                   </Column>
+                            <Column ColumnSize="ColumnSize.Is2">
+                                <Field>
+                                    <Check TValue="bool" @bind-Checked="@EditingHQShare.CanShare">@L["CanShare"]</Check>
+                                </Field>
+                            </Column>
+                        </Row>
+                  </Validation>
 
-                                            <Column ColumnSize="ColumnSize.Is2">
-                                        <Field>
-                                <Check TValue="bool" @bind-Checked="@EditingHQShareAdd.CanWrite">@L["CanWrite"]</Check>
-                                        </Field>
-                                    </Column>
-
-                                            <Column ColumnSize="ColumnSize.Is2">
-                                        <Field>
-                                <Check TValue="bool" @bind-Checked="@EditingHQShareAdd.CanSubmit">@L["CanSubmit"]</Check>
-                                        </Field>
-                                   </Column>
-
-                                            <Column ColumnSize="ColumnSize.Is2">
-                                        <Field>
-                                <Check TValue="bool" @bind-Checked="@EditingHQShareAdd.CanShare">@L["CanShare"]</Check>
-                                        </Field>
-                                    </Column>
-                               </Row>        
-                               <Row>
-
-                                <Column ColumnSize="ColumnSize.Is2">
-                            <Button Color="Color.Info" TextColor="TextColor.White" Size="Size.Small" Clicked="AddIdentityUserShare">
+                    <Row>
+                        <Column ColumnSize="ColumnSize.Is3">
+                            <Button Color="Color.Info" TextColor="TextColor.White" Size="Size.Small" Clicked="CreateHQShareAsync">
                                 <Icon class="fa fa-plus"></Icon> @L["Add"]
-                                </Button>
-                                </Column>
-                               </Row>
-                        </Validations>          
+                            </Button>
+                        </Column>
+                    </Row>
+
+
+
+
+                </Validations>
             </ModalBody>
-            <ModalFooter>
+     @*       <ModalFooter>
                 <Button Color="Color.Secondary"
                         Clicked="CloseEditHQShareModalAsync">
                     @L["Cancel"]
                 </Button>
-                <SubmitButton Form="CreateHQShareForm" Clicked="CreateHQShareAsync" />
-            </ModalFooter>
+                <SubmitButton Form="CreateHQShareForm" Clicked="UpdateHQShareAsync" />
+            </ModalFooter>*@
         </Form>
     </ModalContent>
 </Modal>

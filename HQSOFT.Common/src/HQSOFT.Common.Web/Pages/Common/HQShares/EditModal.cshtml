@@ -16,8 +16,6 @@
         <abp-modal-header title="@L["Update"].Value"></abp-modal-header>
 
         <abp-modal-body>
-             <abp-tabs>
-                <abp-tab title="@L["HQShare"].Value">
                     <abp-input asp-for="Id" />
                     <abp-input asp-for="HQShare.ConcurrencyStamp" hidden="true" suppress-label="true"/>
                     
@@ -36,50 +34,20 @@
 
             <abp-input asp-for="HQShare.CanShare"   />
 
-                    
-                </abp-tab>
-                                 <abp-tab title="@L["IdentityUsers"].Value">
-                    <div class="input-group multiple mb-3">
-                      <div class="flex-grow-1">
-                        <select id="IdentityUserLookup"
-                                        name="IdentityUserLookup"
-                                        class="form-control"
-                                        style="width: 100%"
-                                        data-value="">
-                        </select>
-                      </div>
-                      <abp-button button-type="Info" id="AddIdentityUserButton" class="text-light">@L["Add"]</abp-button>
-                    </div>
+                                <div class="form-group">
+                <label for="HQShare_IdentityUserId">@L["IdentityUser"]</label>
+                <select id="HQShare_IdentityUserId"
+                         name="HQShare.IdentityUserId"
+                         class="custom-select form-control"
+                         data-value="@Model.HQShare.IdentityUserId" >
+                    @if (Model.IdentityUser != null)
+                    {
+                        <option value="@Model.HQShare.IdentityUserId">@Model.IdentityUser.Email</option>
+                    }
+                </select>
+            </div>
 
-                    <abp-row>
-                        <abp-table style="@(Model.IdentityUsers.Any() ? "": "display:none")" id="IdentityUserTable">
-                            <thead Theme="Dark">
-                            <tr style="text-align: center; vertical-align: middle;">
-                                <th scope="Column" style="text-align: left">@L["Email"]</th>
-                                <th scope="Column"></th>
-                            </tr>
-                            </thead>
-                            <tbody id="IdentityUserTableRows">
-                            @for (var index = 0; index < Model.IdentityUsers.Count; index++)
-                            {
-                                <tr style="text-align: center; vertical-align: middle;" index="@index">
-                                    <td style="display: none" name="id" display-name="@Model.IdentityUsers[index].Email" index="@index">@Model.IdentityUsers[index].Id</td>
-                                    <td style="display: none">
-                                        <input value="@Model.IdentityUsers[index].Id" id="SelectedIdentityUserIds[@index]" name="SelectedIdentityUserIds[@index]"/>
-                                    </td>
-                                    <td style="text-align: left">@Model.IdentityUsers[index].Email</td>
-                                    <td style="text-align: right">
-                                        <abp-button button-type="Danger" size="Small" class="text-light identityUserDeleteButton" index="@index"> <i class="fa fa-trash"></i> </abp-button>
-                                    </td>
-                                </tr>
-                            }
-                            </tbody>
-                        </abp-table>
-                    </abp-row>
-
-                </abp-tab>
-
-            </abp-tabs>
+                
         </abp-modal-body>
 
         <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)"></abp-modal-footer>

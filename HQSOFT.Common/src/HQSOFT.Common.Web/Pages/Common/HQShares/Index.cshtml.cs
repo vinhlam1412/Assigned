@@ -55,6 +55,12 @@ namespace HQSOFT.Common.Web.Pages.Common.HQShares
                 new SelectListItem("Yes", "true"),
                 new SelectListItem("No", "false"),
             };
+        [SelectItems(nameof(IdentityUserLookupList))]
+        public Guid? IdentityUserIdFilter { get; set; }
+        public List<SelectListItem> IdentityUserLookupList { get; set; } = new List<SelectListItem>
+        {
+            new SelectListItem(string.Empty, "")
+        };
 
         private readonly IHQSharesAppService _hQSharesAppService;
 
@@ -65,6 +71,12 @@ namespace HQSOFT.Common.Web.Pages.Common.HQShares
 
         public async Task OnGetAsync()
         {
+            IdentityUserLookupList.AddRange((
+                    await _hQSharesAppService.GetIdentityUserLookupAsync(new LookupRequestDto
+                    {
+                        MaxResultCount = LimitedResultRequestDto.MaxMaxResultCount
+                    })).Items.Select(t => new SelectListItem(t.DisplayName, t.Id.ToString())).ToList()
+            );
 
             await Task.CompletedTask;
         }

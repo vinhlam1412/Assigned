@@ -20,9 +20,7 @@ namespace HQSOFT.Common.Web.Pages.Common.HQShares
         [BindProperty]
         public HQShareUpdateViewModel HQShare { get; set; }
 
-        public List<IdentityUserDto> IdentityUsers { get; set; }
-        [BindProperty]
-        public List<Guid> SelectedIdentityUserIds { get; set; }
+        public IdentityUserDto IdentityUser { get; set; }
 
         private readonly IHQSharesAppService _hQSharesAppService;
 
@@ -38,14 +36,12 @@ namespace HQSOFT.Common.Web.Pages.Common.HQShares
             var hQShareWithNavigationPropertiesDto = await _hQSharesAppService.GetWithNavigationPropertiesAsync(Id);
             HQShare = ObjectMapper.Map<HQShareDto, HQShareUpdateViewModel>(hQShareWithNavigationPropertiesDto.HQShare);
 
-            IdentityUsers = hQShareWithNavigationPropertiesDto.IdentityUsers;
+            IdentityUser = hQShareWithNavigationPropertiesDto.IdentityUser;
 
         }
 
         public async Task<NoContentResult> OnPostAsync()
         {
-
-            HQShare.IdentityUserIds = SelectedIdentityUserIds;
 
             await _hQSharesAppService.UpdateAsync(Id, ObjectMapper.Map<HQShareUpdateViewModel, HQShareUpdateDto>(HQShare));
             return NoContent();

@@ -17,7 +17,7 @@ export interface HQShareCreateDto {
   canWrite?: boolean;
   canSubmit?: boolean;
   canShare?: boolean;
-  identityUserIds: string[];
+  identityUserId?: string;
 }
 
 export interface HQShareDto extends FullAuditedEntityDto<string> {
@@ -26,6 +26,7 @@ export interface HQShareDto extends FullAuditedEntityDto<string> {
   canWrite?: boolean;
   canSubmit?: boolean;
   canShare?: boolean;
+  identityUserId?: string;
   concurrencyStamp?: string;
 }
 
@@ -41,11 +42,11 @@ export interface HQShareUpdateDto {
   canWrite?: boolean;
   canSubmit?: boolean;
   canShare?: boolean;
-  identityUserIds: string[];
+  identityUserId?: string;
   concurrencyStamp?: string;
 }
 
 export interface HQShareWithNavigationPropertiesDto {
   hqShare: HQShareDto;
-  identityUsers: IdentityUserDto[];
+  identityUser: IdentityUserDto;
 }

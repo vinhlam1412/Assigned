@@ -149,12 +149,17 @@
               </DataGridColumn>
 
 
+              <DataGridColumn TItem="HQShareWithNavigationPropertiesDto"
+                      Field="IdentityUser.Email"
+                      Caption="@L["IdentityUser"]">
+              </DataGridColumn>
+
             </DataGridColumns>
         </DataGrid>
     </CardBody>
 </Card>
 
-@* ************************* CREATE MODAL ASSIGNMENT ************************* *@
+@* ************************* CREATE MODAL ************************* *@
 <Modal @ref="CreateHQShareModal" Closing="@CreateHQShareModal.CancelClosingModalWhenFocusLost">
     <ModalContent Centered="true">
         <Form id="CreateHQShareForm">
@@ -163,17 +168,11 @@
                 <CloseButton Clicked="CloseCreateHQShareModalAsync" />
             </ModalHeader>
             <ModalBody>
-                <Tabs SelectedTab="@SelectedCreateTab" SelectedTabChanged="@OnSelectedCreateTabChanged">
-                    <Items>
-                        <Tab Name="hQShare-create-tab">@L["HQShare"].Value</Tab> 
-                        <Tab Name="identityUsers-create-tab">@L["IdentityUsers"].Value</Tab>
-                    </Items>
-                    <Content>
                 <Validations @ref="@NewHQShareValidations"
                             Mode="ValidationMode.Auto"
                             Model="@NewHQShare"
                             ValidateOnLoad="false">
-                     <TabPanel Name="hQShare-create-tab">
+                     
                     
                     <Validation>
                         <Field>
@@ -203,57 +202,22 @@
                         <Check TValue="bool" @bind-Checked="@NewHQShare.CanShare" >@L["CanShare"]</Check>
                     </Field>
 
-                    </TabPanel>
-                                                <TabPanel Name="identityUsers-create-tab">
+                    <Field>
+                        <FieldLabel>@L["IdentityUser"] </FieldLabel>
+                        <Autocomplete Data="@UsersCollection"
+                                      TItem="LookupDto<Guid>"
+                                      TValue="Guid?"
+                                      TextField="@((item) => item?.DisplayName)"
+                                      ValueField="@((item) => item?.Id )"
+                                      SearchChanged="@GetIdentityUserCollectionLookupAsync"
+                                      @bind-SelectedValue="@NewHQShare.IdentityUserId"
+                                      Placeholder="&#8212;" />
+                    </Field>
 
-                                <Row>
-                                    <Column ColumnSize="ColumnSize.Is9">
-                                        <Field>
 
-                                            <Autocomplete Data="@IdentityUsers"
-                                                          TItem="LookupDto<Guid>"
-                                                          TValue="string"
-                                                          TextField="@((item) => item.DisplayName)"
-                                                          ValueField="@((item) => item.Id.ToString())"
-                                                          SearchChanged="@GetIdentityUserLookupAsync"
-                                                          @bind-SelectedValue="@SelectedIdentityUserId"
-                                                          @bind-SelectedText="@SelectedIdentityUserText"
-                                                          Placeholder="&#8212;"/>
-                                        </Field>
-                                    </Column>
-
-                                    <Column ColumnSize="ColumnSize.Is3">
-                                        <Button Color="Color.Info" TextColor="TextColor.White" Size="Size.Small" Clicked="AddIdentityUser">
-                                            <Icon class="fa fa-plus"></Icon> @L["Add"]
-                                        </Button>
-                                    </Column>
-                                </Row>
-                                @if (SelectedIdentityUsers.Any())
-                                {
-                                    <Table striped-rows="true" responsive-sm="true" class="mt-2">
-                                        <TableHeader>
-                                            <TableHeaderCell><Span class="float-start">@L["Email"]</Span></TableHeaderCell>
-                                        </TableHeader>
-                                        <TableBody>
-                                            @foreach (var identityUser in SelectedIdentityUsers)
-                                            {
-                                                <TableRow>
-                                                    <TableRowCell><Span class="float-start">@identityUser.DisplayName</Span></TableRowCell>
-                                                    <TableRowCell>
-                                                        <span class="btn btn-danger btn-sm float-end"
-                                                              @onclick="() => SelectedIdentityUsers.RemoveAll(s => s.Id == identityUser.Id)">
-                                                            <Icon Class="fa fa-trash"></Icon>
-                                                        </span>
-                                                    </TableRowCell>
-                                                </TableRow>
-                                            }
-                                        </TableBody>
-                                    </Table>
-                                }
-                            </TabPanel>
+                    
+                    
                 </Validations>
-                    </Content>
-                </Tabs>
             </ModalBody>
             <ModalFooter>
                 <Button Color="Color.Secondary"
@@ -266,7 +230,7 @@
     </ModalContent>
 </Modal>
 
-@* ************************* EDIT MODAL SHARE ************************* *@
+@* ************************* EDIT MODAL ************************* *@
 <Modal @ref="EditHQShareModal" Closing="@EditHQShareModal.CancelClosingModalWhenFocusLost">
     <ModalContent Centered="true">
         <Form id="EditHQShareForm">
@@ -275,18 +239,11 @@
                 <CloseButton Clicked="CloseEditHQShareModalAsync" />
             </ModalHeader>
             <ModalBody>
-                <Tabs SelectedTab="@SelectedEditTab" SelectedTabChanged="@OnSelectedEditTabChanged">
-                    <Items>
-                        <Tab Name="hQShare-edit-tab">@L["HQShare"].Value</Tab>
-                        
-                        <Tab Name="identityUsers-edit-tab">@L["IdentityUsers"].Value</Tab>
-                    </Items>
-                    <Content>
                 <Validations @ref="@EditingHQShareValidations"
                             Mode="ValidationMode.Auto"
                             Model="@EditingHQShare"
                             ValidateOnLoad="false">
-                     <TabPanel Name="hQShare-edit-tab">
+                     
                     
                     <Validation>
                         <Field>
@@ -316,57 +273,22 @@
                         <Check TValue="bool" @bind-Checked="@EditingHQShare.CanShare" >@L["CanShare"]</Check>
                     </Field>
 
-                    </TabPanel>
-                                                <TabPanel Name="identityUsers-edit-tab">
+                    <Field>
+                        <FieldLabel>@L["IdentityUser"] </FieldLabel>
+                        <Autocomplete Data="@UsersCollection"
+                                      TItem="LookupDto<Guid>"
+                                      TValue="Guid?"
+                                      TextField="@((item) => item?.DisplayName)"
+                                      ValueField="@((item) => item?.Id )"
+                                      SearchChanged="@GetIdentityUserCollectionLookupAsync"
+                                      @bind-SelectedValue="@EditingHQShare.IdentityUserId"
+                                      Placeholder="&#8212;" />
+                    </Field>
 
-                                <Row>
-                                    <Column ColumnSize="ColumnSize.Is9">
-                                        <Field>
 
-                                            <Autocomplete Data="@IdentityUsers"
-                                                          TItem="LookupDto<Guid>"
-                                                          TValue="string"
-                                                          TextField="@((item) => item.DisplayName)"
-                                                          ValueField="@((item) => item.Id.ToString())"
-                                                          SearchChanged="@GetIdentityUserLookupAsync"
-                                                          @bind-SelectedValue="@SelectedIdentityUserId"
-                                                          @bind-SelectedText="@SelectedIdentityUserText"
-                                                          Placeholder="&#8212;"/>
-                                        </Field>
-                                    </Column>
-
-                                    <Column ColumnSize="ColumnSize.Is3">
-                                        <Button Color="Color.Info" TextColor="TextColor.White" Size="Size.Small" Clicked="AddIdentityUser">
-                                            <Icon class="fa fa-plus"></Icon> @L["Add"]
-                                        </Button>
-                                    </Column>
-                                </Row>
-                                @if (SelectedIdentityUsers.Any())
-                                {
-                                    <Table striped-rows="true" responsive-sm="true" class="mt-2">
-                                        <TableHeader>
-                                            <TableHeaderCell><Span class="float-start">@L["Email"]</Span></TableHeaderCell>
-                                        </TableHeader>
-                                        <TableBody>
-                                            @foreach (var identityUser in SelectedIdentityUsers)
-                                            {
-                                                <TableRow>
-                                                    <TableRowCell><Span class="float-start">@identityUser.DisplayName</Span></TableRowCell>
-                                                    <TableRowCell>
-                                                        <span class="btn btn-danger btn-sm float-end"
-                                                              @onclick="() => SelectedIdentityUsers.RemoveAll(s => s.Id == identityUser.Id)">
-                                                            <Icon Class="fa fa-trash"></Icon>
-                                                        </span>
-                                                    </TableRowCell>
-                                                </TableRow>
-                                            }
-                                        </TableBody>
-                                    </Table>
-                                }
-                            </TabPanel>
+                    
+                    
                 </Validations>
-                    </Content>
-                </Tabs>
             </ModalBody>
             <ModalFooter>
                 <Button Color="Color.Secondary"

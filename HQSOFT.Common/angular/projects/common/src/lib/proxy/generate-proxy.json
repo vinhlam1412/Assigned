@@ -1061,7 +1061,7 @@
                   "nameOnMethod": "input",
                   "name": "IdentityUserId",
                   "jsonName": null,
-                  "type": "Guid?",
+                  "type": "System.Guid?",
                   "typeSimple": "string?",
                   "isOptional": false,
                   "defaultValue": null,
@@ -2611,8 +2611,9 @@
         {
           "name": "IdentityUserId",
           "jsonName": null,
-          "type": "Guid?",
-          "typeSimple": "string?"
+          "type": "System.Guid?",
+          "typeSimple": "string?",
+          "isRequired": false
         }
       ]
     },
@@ -2661,6 +2662,14 @@
           "type": "System.Bool?",
           "typeSimple": "boolean?",
           "isRef": false,
+          "isRequired": false
+        },
+        {
+          "name": "IdentityUserId",
+          "jsonName": null,
+          "type": "System.Guid?",
+          "typeSimple": "string?",
+          "isRef": true,
           "isRequired": false
         },
         {
@@ -2720,10 +2729,12 @@
           "isRequired": false
         },
         {
-          "name": "IdentityUserIds",
+          "name": "IdentityUserId",
           "jsonName": null,
-          "type": "[Guid]",
-          "typeSimple": "[string]"
+          "type": "System.Guid?",
+          "typeSimple": "string?",
+          "isRef": true,
+          "isRequired": false
         }
       ]
     },
@@ -2775,10 +2786,12 @@
           "isRequired": false
         },
         {
-          "name": "IdentityUserIds",
+          "name": "IdentityUserId",
           "jsonName": null,
-          "type": "[Guid]",
-          "typeSimple": "[string]"
+          "type": "System.Guid?",
+          "typeSimple": "string?",
+          "isRef": true,
+          "isRequired": false
         },
         {
           "name": "ConcurrencyStamp",
@@ -2849,10 +2862,11 @@
           "isRequired": false
         },
         {
-          "name": "IdentityUsers",
+          "name": "IdentityUser",
           "jsonName": null,
-          "type": "[Volo.Abp.Identity.IdentityUserDto]",
-          "typeSimple": "[Volo.Abp.Identity.IdentityUserDto]"
+          "type": "Volo.Abp.Identity.IdentityUserDto",
+          "typeSimple": "Volo.Abp.Identity.IdentityUserDto",
+          "isRequired": false
         }
       ]
     }

@@ -29,22 +29,24 @@ namespace HQSOFT.Common.HQShares
 
             await _hQShareRepository.InsertAsync(new HQShare
             (
-                id: Guid.Parse("716dafda-eddc-4e4b-8418-1a0a6b40466d"),
-                iDParent: "a54d307ca4544bc68fc6e9b5d70b651bcd34",
+                id: Guid.Parse("c69ece73-14fc-431f-b429-5dbe5cedcef4"),
+                iDParent: "a7952fe98f8645f3856ce6da3e84bc03bd10df7ba2bd4f5c9ce4d0782",
                 canRead: true,
                 canWrite: true,
                 canSubmit: true,
-                canShare: true
+                canShare: true,
+                identityUserId: null
             ));
 
             await _hQShareRepository.InsertAsync(new HQShare
             (
-                id: Guid.Parse("1813abc1-7745-4754-83cd-154677e5c689"),
-                iDParent: "2552b6bb0625446c8c3e129d20aba84d443c5984c6974e85aabefd3bf4eb767eda5ae011380b4e76a57c07c91e5e",
+                id: Guid.Parse("8a14eeb2-4efd-426f-80f1-ab64826e6de2"),
+                iDParent: "1609b18",
                 canRead: true,
                 canWrite: true,
                 canSubmit: true,
-                canShare: true
+                canShare: true,
+                identityUserId: null
             ));
 
             await _unitOfWorkManager.Current.SaveChangesAsync();

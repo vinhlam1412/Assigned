@@ -1,11 +1,10 @@
 using HQSOFT.Common.Shared;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Content;
-using HQSOFT.Common.Shared;
-
 namespace HQSOFT.Common.HQShares
 {
     public interface IHQSharesAppService : IApplicationService
@@ -28,6 +27,6 @@ namespace HQSOFT.Common.HQShares
 
         Task<DownloadTokenResultDto> GetDownloadTokenAsync();
 
-        Task<HQShareDto> GetParentAsync(string id);
+        Task<List<HQShareDto>> GetParentAsync(string id);
     }
 }

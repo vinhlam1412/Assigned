@@ -5,7 +5,6 @@ import {
   NgbCollapseModule,
   NgbDatepickerModule,
   NgbDropdownModule,
-  NgbNavModule,
 } from '@ng-bootstrap/ng-bootstrap';
 import { NgxValidateCoreModule } from '@ngx-validate/core';
 import { CommercialUiModule } from '@volo/abp.commercial.ng.ui';
@@ -24,7 +23,7 @@ import { HQShareRoutingModule } from './hqshare-routing.module';
     NgbCollapseModule,
     NgbDatepickerModule,
     NgbDropdownModule,
-    NgbNavModule,
+
     PageModule,
   ],
 })

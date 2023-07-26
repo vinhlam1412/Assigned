@@ -148,10 +148,14 @@
       "OrdinalIndex": 0
     }
   ],
-  "NavigationProperties": [],
-  "NavigationConnections": [
+  "NavigationProperties": [
     {
-      "Name": "IdentityUsers",
+      "EntityNameWithDuplicationNumber": "IdentityUser",
+      "EntitySetNameWithDuplicationNumber": "Users",
+      "ReferencePropertyName": "IdentityUser",
+      "UiPickType": "Typeahead",
+      "IsRequired": false,
+      "Name": "IdentityUserId",
       "DisplayProperty": "Email",
       "Namespace": "Volo.Abp.Identity",
       "EntityName": "IdentityUser",
@@ -161,5 +165,6 @@
       "Type": "Guid"
     }
   ],
+  "NavigationConnections": [],
   "PhysicalFileName": "HQShare.json"
 }

@@ -25,13 +25,12 @@ namespace HQSOFT.Common.HQShares
             var hQShare = await (await GetMongoQueryableAsync(cancellationToken))
                 .FirstOrDefaultAsync(e => e.Id == id, GetCancellationToken(cancellationToken));
 
-            var identityUserIds = hQShare.IdentityUsers.Select(x => x.IdentityUserId).ToList();
-            var identityUsers = await (await GetDbContextAsync(cancellationToken)).Database.GetCollection<IdentityUser>("AbpUsers").AsQueryable().Where(e => identityUserIds.Contains(e.Id)).ToListAsync(cancellationToken: cancellationToken);
+            var identityUser = await (await GetDbContextAsync(cancellationToken)).Database.GetCollection<IdentityUser>("AbpUsers").AsQueryable().FirstOrDefaultAsync(e => e.Id == hQShare.IdentityUserId, cancellationToken: cancellationToken);
 
             return new HQShareWithNavigationProperties
             {
                 HQShare = hQShare,
-                IdentityUsers = identityUsers,
+                IdentityUser = identityUser,
 
             };
         }
@@ -59,7 +58,7 @@ namespace HQSOFT.Common.HQShares
             return hQShares.Select(s => new HQShareWithNavigationProperties
             {
                 HQShare = s,
-                IdentityUsers = new List<IdentityUser>(),
+                IdentityUser = dbContext.Database.GetCollection<IdentityUser>("AbpUsers").AsQueryable().FirstOrDefault(e => e.Id == s.IdentityUserId),
 
             }).ToList();
         }
@@ -114,7 +113,7 @@ namespace HQSOFT.Common.HQShares
                     .WhereIf(canWrite.HasValue, e => e.CanWrite == canWrite)
                     .WhereIf(canSubmit.HasValue, e => e.CanSubmit == canSubmit)
                     .WhereIf(canShare.HasValue, e => e.CanShare == canShare)
-                    .WhereIf(identityUserId != null && identityUserId != Guid.Empty, e => e.IdentityUsers.Any(x => x.IdentityUserId == identityUserId));
+                    .WhereIf(identityUserId != null && identityUserId != Guid.Empty, e => e.IdentityUserId == identityUserId);
         }
     }
 }

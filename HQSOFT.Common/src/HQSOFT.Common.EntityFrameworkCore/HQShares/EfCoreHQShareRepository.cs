@@ -1,5 +1,4 @@
 using Volo.Abp.Identity;
-using Volo.Abp.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,13 +24,11 @@ namespace HQSOFT.Common.HQShares
         {
             var dbContext = await GetDbContextAsync();
 
-            return (await GetDbSetAsync()).Where(b => b.Id == id).Include(x => x.IdentityUsers)
+            return (await GetDbSetAsync()).Where(b => b.Id == id)
                 .Select(hQShare => new HQShareWithNavigationProperties
                 {
                     HQShare = hQShare,
-                    IdentityUsers = (from hQShareIdentityUsers in hQShare.IdentityUsers
-                                     join _identityUser in dbContext.Set<IdentityUser>() on hQShareIdentityUsers.IdentityUserId equals _identityUser.Id
-                                     select _identityUser).ToList()
+                    IdentityUser = dbContext.Set<IdentityUser>().FirstOrDefault(c => c.Id == hQShare.IdentityUserId)
                 }).FirstOrDefault();
         }
 
@@ -57,11 +54,12 @@ namespace HQSOFT.Common.HQShares
         protected virtual async Task<IQueryable<HQShareWithNavigationProperties>> GetQueryForNavigationPropertiesAsync()
         {
             return from hQShare in (await GetDbSetAsync())
-
+                   join identityUser in (await GetDbContextAsync()).Set<IdentityUser>() on hQShare.IdentityUserId equals identityUser.Id into users
+                   from identityUser in users.DefaultIfEmpty()
                    select new HQShareWithNavigationProperties
                    {
                        HQShare = hQShare,
-                       IdentityUsers = new List<IdentityUser>()
+                       IdentityUser = identityUser
                    };
         }
 
@@ -82,7 +80,7 @@ namespace HQSOFT.Common.HQShares
                     .WhereIf(canWrite.HasValue, e => e.HQShare.CanWrite == canWrite)
                     .WhereIf(canSubmit.HasValue, e => e.HQShare.CanSubmit == canSubmit)
                     .WhereIf(canShare.HasValue, e => e.HQShare.CanShare == canShare)
-                    .WhereIf(identityUserId != null && identityUserId != Guid.Empty, e => e.HQShare.IdentityUsers.Any(x => x.IdentityUserId == identityUserId));
+                    .WhereIf(identityUserId != null && identityUserId != Guid.Empty, e => e.IdentityUser != null && e.IdentityUser.Id == identityUserId);
         }
 
         public async Task<List<HQShare>> GetListAsync(

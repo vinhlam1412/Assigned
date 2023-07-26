@@ -3,6 +3,24 @@ $(function () {
 	
 	var hQShareService = window.hQSOFT.common.hQShares.hQShare;
 	
+        var lastNpIdId = '';
+        var lastNpDisplayNameId = '';
+
+        var _lookupModal = new abp.ModalManager({
+            viewUrl: abp.appPath + "Shared/LookupModal",
+            scriptUrl: "/Pages/Shared/lookupModal.js",
+            modalClass: "navigationPropertyLookup"
+        });
+
+        $('.lookupCleanButton').on('click', '', function () {
+            $(this).parent().find('input').val('');
+        });
+
+        _lookupModal.onClose(function () {
+            var modal = $(_lookupModal.getModal());
+            $('#' + lastNpIdId).val(modal.find('#CurrentLookupId').val());
+            $('#' + lastNpDisplayNameId).val(modal.find('#CurrentLookupDisplayName').val());
+        });
 	
     var createModal = new abp.ModalManager({
         viewUrl: abp.appPath + "Common/HQShares/CreateModal",
@@ -48,7 +66,7 @@ $(function () {
                 }
                 return value === 'true';
             })(),
-			identityUserId: $("#IdentityUserFilter").val()
+			identityUserId: $("#IdentityUserIdFilter").val()
         };
     };
 
@@ -117,6 +135,10 @@ $(function () {
                 render: function (canShare) {
                     return canShare ? '<i class="fa fa-check"></i>' : '<i class="fa fa-times"></i>';
                 }
+            },
+            {
+                data: "identityUser.email",
+                defaultContent : ""
             }
         ]
     }));
@@ -177,22 +199,5 @@ $(function () {
         dataTable.ajax.reloadEx();;
     });
     
-                $('#IdentityUserFilter').select2({
-                ajax: {
-                    url: abp.appPath + 'api/common/h-qShares/identity-user-lookup',
-                    type: 'GET',
-                    data: function (params) {
-                        return { filter: params.term, maxResultCount: 10 }
-                    },
-                    processResults: function (data) {
-                        var mappedItems = _.map(data.items, function (item) {
-                            return { id: item.id, text: item.displayName };
-                        });
-                        mappedItems.unshift({ id: "", text: ' - ' });
-
-                        return { results: mappedItems };
-                    }
-                }
-            });
-        
+    
 });

@@ -27,19 +27,19 @@ namespace HQSOFT.Common.HQShares
             // Assert
             result.TotalCount.ShouldBe(2);
             result.Items.Count.ShouldBe(2);
-            result.Items.Any(x => x.HQShare.Id == Guid.Parse("716dafda-eddc-4e4b-8418-1a0a6b40466d")).ShouldBe(true);
-            result.Items.Any(x => x.HQShare.Id == Guid.Parse("1813abc1-7745-4754-83cd-154677e5c689")).ShouldBe(true);
+            result.Items.Any(x => x.HQShare.Id == Guid.Parse("c69ece73-14fc-431f-b429-5dbe5cedcef4")).ShouldBe(true);
+            result.Items.Any(x => x.HQShare.Id == Guid.Parse("8a14eeb2-4efd-426f-80f1-ab64826e6de2")).ShouldBe(true);
         }
 
         [Fact]
         public async Task GetAsync()
         {
             // Act
-            var result = await _hQSharesAppService.GetAsync(Guid.Parse("716dafda-eddc-4e4b-8418-1a0a6b40466d"));
+            var result = await _hQSharesAppService.GetAsync(Guid.Parse("c69ece73-14fc-431f-b429-5dbe5cedcef4"));
 
             // Assert
             result.ShouldNotBeNull();
-            result.Id.ShouldBe(Guid.Parse("716dafda-eddc-4e4b-8418-1a0a6b40466d"));
+            result.Id.ShouldBe(Guid.Parse("c69ece73-14fc-431f-b429-5dbe5cedcef4"));
         }
 
         [Fact]
@@ -48,7 +48,7 @@ namespace HQSOFT.Common.HQShares
             // Arrange
             var input = new HQShareCreateDto
             {
-                IDParent = "03f09aa889784752ab379ad0f016b41f9b399864aa0b4de5bf7c83dbdcaa1edefc",
+                IDParent = "67942d5c715440a8b8e3",
                 CanRead = true,
                 CanWrite = true,
                 CanSubmit = true,
@@ -62,7 +62,7 @@ namespace HQSOFT.Common.HQShares
             var result = await _hQShareRepository.FindAsync(c => c.Id == serviceResult.Id);
 
             result.ShouldNotBe(null);
-            result.IDParent.ShouldBe("03f09aa889784752ab379ad0f016b41f9b399864aa0b4de5bf7c83dbdcaa1edefc");
+            result.IDParent.ShouldBe("67942d5c715440a8b8e3");
             result.CanRead.ShouldBe(true);
             result.CanWrite.ShouldBe(true);
             result.CanSubmit.ShouldBe(true);
@@ -75,7 +75,7 @@ namespace HQSOFT.Common.HQShares
             // Arrange
             var input = new HQShareUpdateDto()
             {
-                IDParent = "70f42e31fe5c4c5782cffb1c435c12aae58c",
+                IDParent = "ead1906af85143c6a",
                 CanRead = true,
                 CanWrite = true,
                 CanSubmit = true,
@@ -83,13 +83,13 @@ namespace HQSOFT.Common.HQShares
             };
 
             // Act
-            var serviceResult = await _hQSharesAppService.UpdateAsync(Guid.Parse("716dafda-eddc-4e4b-8418-1a0a6b40466d"), input);
+            var serviceResult = await _hQSharesAppService.UpdateAsync(Guid.Parse("c69ece73-14fc-431f-b429-5dbe5cedcef4"), input);
 
             // Assert
             var result = await _hQShareRepository.FindAsync(c => c.Id == serviceResult.Id);
 
             result.ShouldNotBe(null);
-            result.IDParent.ShouldBe("70f42e31fe5c4c5782cffb1c435c12aae58c");
+            result.IDParent.ShouldBe("ead1906af85143c6a");
             result.CanRead.ShouldBe(true);
             result.CanWrite.ShouldBe(true);
             result.CanSubmit.ShouldBe(true);
@@ -100,10 +100,10 @@ namespace HQSOFT.Common.HQShares
         public async Task DeleteAsync()
         {
             // Act
-            await _hQSharesAppService.DeleteAsync(Guid.Parse("716dafda-eddc-4e4b-8418-1a0a6b40466d"));
+            await _hQSharesAppService.DeleteAsync(Guid.Parse("c69ece73-14fc-431f-b429-5dbe5cedcef4"));
 
             // Assert
-            var result = await _hQShareRepository.FindAsync(c => c.Id == Guid.Parse("716dafda-eddc-4e4b-8418-1a0a6b40466d"));
+            var result = await _hQShareRepository.FindAsync(c => c.Id == Guid.Parse("c69ece73-14fc-431f-b429-5dbe5cedcef4"));
 
             result.ShouldBeNull();
         }

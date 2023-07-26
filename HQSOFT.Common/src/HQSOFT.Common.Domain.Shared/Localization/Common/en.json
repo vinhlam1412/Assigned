@@ -89,6 +89,7 @@
     "MaxCanRead": "Max Can Read",
     "MaxCanWrite": "Max Can Write",
     "MaxCanSubmit": "Max Can Submit",
-    "MaxCanShare": "Max Can Share"
+    "MaxCanShare": "Max Can Share",
+    "IdentityUser": "Identity user"
   }
 }

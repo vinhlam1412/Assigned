@@ -29,7 +29,8 @@ public class CommonWebAutoMapperProfile : Profile
         CreateMap<HQAssignedUpdateViewModel, HQAssignedUpdateDto>();
         CreateMap<HQAssignedCreateViewModel, HQAssignedCreateDto>();
 
-        CreateMap<HQShareDto, HQShareUpdateViewModel>().Ignore(x => x.IdentityUserIds);
+
+        CreateMap<HQShareDto, HQShareUpdateViewModel>();
         CreateMap<HQShareUpdateViewModel, HQShareUpdateDto>();
         CreateMap<HQShareCreateViewModel, HQShareCreateDto>();
     }
