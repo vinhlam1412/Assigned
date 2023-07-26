@@ -1,4 +1,5 @@
 ﻿using Blazorise;
+using DevExpress.XtraPrinting;
 using HQSOFT.Common.Blazor.Pages.Common;
 using HQSOFT.Common.HQAssigneds;
 using HQSOFT.Common.HQShares;
@@ -321,6 +322,7 @@ namespace HQSOFT.Common.Blazor.Components
         {
             try
             {
+                bool userAlreadyAdded = await CheckShareUserAsync();
                 if (EditingHQShare.IdentityUserId == null)
                 {
                     return;
@@ -329,11 +331,19 @@ namespace HQSOFT.Common.Blazor.Components
                 {
                     NewHQShare = ObjectMapper.Map<HQShareUpdateDto, HQShareCreateDto>(EditingHQShare);
                     NewHQShare.IDParent = Value;
-                    await HQSharesAppService.CreateAsync(NewHQShare);
-                    //await GetHQSharesAsync();
-                    await LoadListShareUserAsync();
-                    await EditingHQShareValidations.ClearAll();
-                    await ClearEdittingHQShare();
+                    NewHQShare.CanRead = true;
+                    if(userAlreadyAdded)
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        await HQSharesAppService.CreateAsync(NewHQShare);
+                        StateHasChanged();
+                        await LoadListShareUserAsync();
+                        await EditingHQShareValidations.ClearAll();
+                        await ClearEdittingHQShare();
+                    }              
                 }
             }
             catch (Exception ex)
@@ -344,8 +354,34 @@ namespace HQSOFT.Common.Blazor.Components
 
         }
 
+        private async Task OnPermissionReadChanged(bool value, HQShareWithNavigationPropertiesDto input)
+        {
+            if(value == true)
+            {
+                await HQSharesAppService.DeleteAsync(input.HQShare.Id);
+                await LoadListShareUserAsync();
 
+            }
+        }
+        private async Task OnPermissionGeneralChanged( bool value, HQShareWithNavigationPropertiesDto input, string type)
+         {
+            var hqShareUpdate = ObjectMapper.Map<HQShareDto, HQShareUpdateDto>(input.HQShare);
+            if (type == "SH")
+            {
+                hqShareUpdate.CanShare = !value;
+            }
+            if(type == "SB")
+            {
+                hqShareUpdate.CanSubmit = !value;
+            }
+            if (type == "WR")
+            {
+                hqShareUpdate.CanWrite = !value;
+            }
+            await HQSharesAppService.UpdateAsync(input.HQShare.Id, hqShareUpdate);
+            await LoadListShareUserAsync();
 
+        }
         private async Task GetIdentityUserLookupAsync(string? newValue = null)
         {
             IdentityUsers = (await HQAssignedsAppService.GetIdentityUserLookupAsync(new LookupRequestDto { Filter = newValue })).Items;
@@ -400,7 +436,23 @@ namespace HQSOFT.Common.Blazor.Components
             }
         }
 
+        private async Task<bool> CheckShareUserAsync()
+        {
+            List<HQShareDto> hqShareWithParent = await HQSharesAppService.GetParentAsync(Value);
 
+            if (hqShareWithParent != null)
+            {
+                foreach (var item in hqShareWithParent)
+                {                   
+                    if(EditingHQShare.IdentityUserId == item.IdentityUserId)
+                    {
+                        await UiMessageService.Warn(L["ItemAlreadyAdd"]);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
 
         private void AddIdentityUserAssigned()
         {
@@ -430,26 +482,6 @@ namespace HQSOFT.Common.Blazor.Components
                 });
             }
         }
-
-        //private void AddIdentityUserShare()
-        //{
-        //    if (SelectedIdentityUserIdShare.IsNullOrEmpty())
-        //    {
-        //        return;
-        //    }
-
-        //    if (SelectedIdentityShareUsers.Any(p => p.Id.ToString() == SelectedIdentityUserIdShare))
-        //    {
-        //        UiMessageService.Warn(L["ItemAlreadyAdded"]);
-        //        return;
-        //    }
-
-        //    SelectedIdentityShareUsers.Add(new LookupDto<Guid>
-        //    {
-        //        Id = Guid.Parse(SelectedIdentityUserIdShare),
-        //        DisplayName = SelectedIdentityUserTextShare
-        //    });
-        //}
 
     }
 }

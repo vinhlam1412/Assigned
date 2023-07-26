@@ -36,6 +36,9 @@ using Volo.Abp.Threading;
 using Volo.Abp.VirtualFileSystem;
 using Volo.Saas.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore.PostgreSql;
+using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.AspNetCore.SignalR;
+using HQSOFT.Common.Blazor.Pages.Common.Hubs;
 
 namespace HQSOFT.Common;
 [DependsOn(
@@ -67,6 +70,8 @@ public class CommonHttpApiHostModule : AbpModule
     {
         var hostingEnvironment = context.Services.GetHostingEnvironment();
         var configuration = context.Services.GetConfiguration();
+
+
 
         Configure<AbpDbContextOptions>(options =>
         {
@@ -158,6 +163,18 @@ public class CommonHttpApiHostModule : AbpModule
                     .AllowCredentials();
             });
         });
+    }
+
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddSignalR();
+        services.AddResponseCompression(opts =>
+        {
+            opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+                new[] { "application/octet-stream" });
+        });
+
+
     }
 
     public override void OnApplicationInitialization(ApplicationInitializationContext context)

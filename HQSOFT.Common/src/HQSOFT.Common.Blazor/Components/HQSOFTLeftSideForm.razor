@@ -227,25 +227,29 @@
 
                             <Column ColumnSize="ColumnSize.Is2">
                                 <Field>
-                                    <Check TValue="bool" @bind-Checked="@item2.HQShare.CanRead">@L["CanRead"]</Check>
+                                    <Check TValue="bool" Checked="@item2.HQShare.CanRead" 
+                                    CheckedChanged="()=>OnPermissionReadChanged(item2.HQShare.CanRead, item2)">@L["CanRead"]</Check>
                                 </Field>
                             </Column>
 
                              <Column ColumnSize="ColumnSize.Is2">
                                 <Field>
-                                    <Check TValue="bool" @bind-Checked="@item2.HQShare.CanWrite">@L["CanWrite"]</Check>
+                                    <Check TValue="bool" Checked="@item2.HQShare.CanWrite" 
+                                    CheckedChanged="@(checkValue =>OnPermissionGeneralChanged(item2.HQShare.CanWrite ,item2,"WR"))">@L["CanWrite"]</Check>
                                 </Field>
                             </Column>
 
                              <Column ColumnSize="ColumnSize.Is2">
                                 <Field>
-                                    <Check TValue="bool" @bind-Checked="@item2.HQShare.CanSubmit">@L["CanSubmit"]</Check>
+                                    <Check TValue="bool" Checked="@item2.HQShare.CanSubmit"
+                                       CheckedChanged="@(checkValue =>OnPermissionGeneralChanged(item2.HQShare.CanSubmit ,item2,"SB"))">@L["CanSubmit"]</Check>
                                 </Field>
                             </Column>
 
                             <Column ColumnSize="ColumnSize.Is2">
-                                <Field>
-                                    <Check TValue="bool" @bind-Checked="@item2.HQShare.CanShare">@L["CanShare"]</Check>
+                                <Field> 
+                                    <Check TValue="bool" Checked="@item2.HQShare.CanShare" 
+                                       CheckedChanged="@(checkdValue => OnPermissionGeneralChanged(item2.HQShare.CanShare ,item2, "SH") )">@L["CanShare"]</Check>
                                 </Field>
                             </Column>                                         
                       </Row>

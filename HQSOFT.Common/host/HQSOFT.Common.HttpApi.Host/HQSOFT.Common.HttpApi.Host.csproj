@@ -36,6 +36,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\HQSOFT.Common.Blazor\HQSOFT.Common.Blazor.csproj" />
     <ProjectReference Include="..\..\src\HQSOFT.Common.HttpApi\HQSOFT.Common.HttpApi.csproj" />
     <ProjectReference Include="..\..\src\HQSOFT.Common.Application\HQSOFT.Common.Application.csproj" />
     <ProjectReference Include="..\..\src\HQSOFT.Common.EntityFrameworkCore\HQSOFT.Common.EntityFrameworkCore.csproj" />
