@@ -38,7 +38,9 @@ using Volo.Saas.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore.PostgreSql;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.SignalR;
-using HQSOFT.Common.Blazor.Pages.Common.Hubs;
+using Volo.Abp.AspNetCore.Mvc.UI.Bundling;
+using Volo.Abp.AspNetCore.Mvc.UI.Theme.Lepton.Bundling;
+using Volo.Abp.AspNetCore.SignalR;
 
 namespace HQSOFT.Common;
 [DependsOn(
@@ -59,6 +61,8 @@ namespace HQSOFT.Common;
     typeof(AbpSwashbuckleModule),
     typeof(AbpAspNetCoreSerilogModule)
     )]
+
+[DependsOn(typeof(AbpAspNetCoreSignalRModule))]
 public class CommonHttpApiHostModule : AbpModule
 {
     public override void PreConfigureServices(ServiceConfigurationContext context)
@@ -72,6 +76,14 @@ public class CommonHttpApiHostModule : AbpModule
         var configuration = context.Services.GetConfiguration();
 
 
+        Configure<AbpBundlingOptions>(options =>
+        {
+            options
+                .ScriptBundles
+                .Get(LeptonThemeBundles.Scripts.Global) //or -> Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared.Bundling.StandardBundles.Scripts.Global
+                .AddFiles("/libs/signalr/signalr.js")
+                .AddFiles("/Pages/notification-hub.js");
+        });
 
         Configure<AbpDbContextOptions>(options =>
         {

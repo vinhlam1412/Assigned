@@ -39,6 +39,7 @@ namespace HQSOFT.Common.Blazor.Host;
     typeof(AbpSettingManagementBlazorWebAssemblyModule),
     typeof(CommonBlazorWebAssemblyModule)
 )]
+
 public class CommonBlazorHostModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)

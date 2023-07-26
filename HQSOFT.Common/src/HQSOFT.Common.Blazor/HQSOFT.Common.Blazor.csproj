@@ -12,8 +12,8 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="7.0.9" />
         <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="7.0.9" />
-        <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.1.0" />
         <PackageReference Include="Volo.Abp.AutoMapper" Version="7.3.0" />
         <PackageReference Include="Volo.Abp.AspNetCore.Components.Web.Theming" Version="7.3.0" />
 		<PackageReference Include="DevExpress.Blazor" Version="23.1.3" />
