@@ -1,3 +1,4 @@
+using HQSOFT.Common.HQNotifications;
 using HQSOFT.Common.HQShares;
 using HQSOFT.Common.HQAssigneds;
 using HQSOFT.Common.HQTasks;
@@ -10,6 +11,7 @@ namespace HQSOFT.Common.MongoDB;
 [ConnectionStringName(CommonDbProperties.ConnectionStringName)]
 public class CommonMongoDbContext : AbpMongoDbContext, ICommonMongoDbContext
 {
+    public IMongoCollection<HQNotification> HQNotifications => Collection<HQNotification>();
     public IMongoCollection<HQShare> HQShares => Collection<HQShare>();
     public IMongoCollection<HQAssigned> HQAssigneds => Collection<HQAssigned>();
     public IMongoCollection<HQTask> HQTasks => Collection<HQTask>();
@@ -28,5 +30,7 @@ public class CommonMongoDbContext : AbpMongoDbContext, ICommonMongoDbContext
         modelBuilder.Entity<HQAssigned>(b => { b.CollectionName = CommonDbProperties.DbTablePrefix + "HQAssigneds"; });
 
         modelBuilder.Entity<HQShare>(b => { b.CollectionName = CommonDbProperties.DbTablePrefix + "HQShares"; });
+
+        modelBuilder.Entity<HQNotification>(b => { b.CollectionName = CommonDbProperties.DbTablePrefix + "HQNotifications"; });
     }
 }

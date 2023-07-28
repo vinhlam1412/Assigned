@@ -1,10 +1,13 @@
 ﻿@using Blazorise.Components;
 @using HQSOFT.Common.HQAssigneds;
-
+@using HQSOFT.Common.HQNotifications;
 @using HQSOFT.Common.HQShares;
+@using Microsoft.AspNetCore.Components.Authorization;
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 @using Volo.Abp.AspNetCore.Components.Messages;
 @using Volo.Abp.BlazoriseUI.Components
 @using Volo.Abp.Identity;
+@using Volo.Abp.MultiTenancy;
 @using global::HQSOFT.Common.Localization
 @using global::HQSOFT.Common.Shared
 @using Microsoft.AspNetCore.Authorization
@@ -13,21 +16,22 @@
 @inherits CommonComponentBase
 @inject IHQAssignedsAppService HQAssignedsAppService
 @inject IHQSharesAppService HQSharesAppService
+@inject IHQNotificationsAppService HQNotificationAppService
 @inject IUiMessageService UiMessageService
 @inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
+@inject ICurrentTenant CurrentTenant
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IAccessTokenProvider TokenProvider
+@inject IHQNotificationsAppService HQNotificationsAppService
 @inject NavigationManager NavigationManager
 @using Volo.Abp.Http.Client;
+
 <Card>
     <CardBody>
-        @*<Text>@Value</Text>*@
         <Icon Name="IconName.UserPlus" />
         <Text class="title">Assigned To</Text>
-       @* <br />
-        <button style="border-radius:50%;margin-top:10px; margin-bottom:10px">
-            <Icon Name="IconName.PlusCircle" Style="color:black" />
-        </button>
-        <br />*@
-        <Button Style="margin-top: 20px; width:100%" Outline Clicked="OpenEditHQAssignedModalAsync">
+ 
+        <Button Color="Color.Dark" Style="margin-top: 20px; width:100%" Outline Clicked="OpenEditHQAssignedModalAsync">
             <Icon Name="IconName.PlusCircle"  />
         </Button>
         @foreach(var item in SelectedIdentityAssignedUsers)
@@ -38,11 +42,10 @@
                 </Text>
             </Field>
         }
-
         <Icon Name="IconName.Paperclip" />
         <Text class="title">Attachments</Text>
 
-        <Button Size="Size.Small" Color="Color.Dark" Style="margin-top:10px; margin-bottom:10px; width:100%" Outline>
+        <Button Color="Color.Dark" Style="margin-top:10px; margin-bottom:10px; width:100%" Outline>
             Attach File  <Icon Name="IconName.PlusCircle" />
         </Button>
 
@@ -52,17 +55,11 @@
         <button style="border-radius:50%; margin-top:10px;margin-bottom:10px">
             <Icon Name="IconName.PlusCircle" Style="color:black" />
         </button>
-        @* <Button Color="Color.Dark" Style="margin-top: 20px; width:100%; border-radius=50%" Outline>
-        <Icon Name="IconName.PlusCircle" />
-        </Button>*@
+
         <br />
         <Icon Name="IconName.Share" />
         <Text class="title">Share With</Text>
-       @* <br />
-        <button style="border-radius:50%; margin-top:10px;margin-bottom:10px">
-            <Icon Name="IconName.PlusCircle" Style="color:black" />
-        </button>
-        <br />*@
+ 
         <Button Color="Color.Dark" Style="margin-top: 20px; width:100%" Outline Clicked="OpenEditHQShareModalAsync">
             <Icon Name="IconName.PlusCircle" />
         </Button>
@@ -119,11 +116,6 @@
                                         </Field>
                                     </Column>
 
-                                   @* <Column ColumnSize="ColumnSize.Is3">
-                                        <Button Color="Color.Info" TextColor="TextColor.White" Size="Size.Small" Clicked="AddIdentityUser">
-                                            <Icon class="fa fa-plus"></Icon> @L["Add"]
-                                        </Button>
-                                    </Column>*@
                                 </Row>
                                 @if (SelectedIdentityAssignedUsers.Any())
                                 {
@@ -308,13 +300,6 @@
 
                 </Validations>
             </ModalBody>
-     @*       <ModalFooter>
-                <Button Color="Color.Secondary"
-                        Clicked="CloseEditHQShareModalAsync">
-                    @L["Cancel"]
-                </Button>
-                <SubmitButton Form="CreateHQShareForm" Clicked="UpdateHQShareAsync" />
-            </ModalFooter>*@
         </Form>
     </ModalContent>
 </Modal>

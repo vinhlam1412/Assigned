@@ -24,6 +24,11 @@ public class CommonPermissionDefinitionProvider : PermissionDefinitionProvider
         hQSharePermission.AddChild(CommonPermissions.HQShares.Create, L("Permission:Create"));
         hQSharePermission.AddChild(CommonPermissions.HQShares.Edit, L("Permission:Edit"));
         hQSharePermission.AddChild(CommonPermissions.HQShares.Delete, L("Permission:Delete"));
+
+        var hQNotificationPermission = myGroup.AddPermission(CommonPermissions.HQNotifications.Default, L("Permission:HQNotifications"));
+        hQNotificationPermission.AddChild(CommonPermissions.HQNotifications.Create, L("Permission:Create"));
+        hQNotificationPermission.AddChild(CommonPermissions.HQNotifications.Edit, L("Permission:Edit"));
+        hQNotificationPermission.AddChild(CommonPermissions.HQNotifications.Delete, L("Permission:Delete"));
     }
 
     private static LocalizableString L(string name)

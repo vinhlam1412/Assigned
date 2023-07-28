@@ -34,4 +34,12 @@ public class CommonPermissions
         public const string Create = Default + ".Create";
         public const string Delete = Default + ".Delete";
     }
+
+    public static class HQNotifications
+    {
+        public const string Default = GroupName + ".HQNotifications";
+        public const string Edit = Default + ".Edit";
+        public const string Create = Default + ".Create";
+        public const string Delete = Default + ".Delete";
+    }
 }

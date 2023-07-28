@@ -5,9 +5,10 @@ using Volo.Abp.AspNetCore.Components.Web.Theming.Routing;
 using Volo.Abp.AutoMapper;
 using Volo.Abp.Modularity;
 using Volo.Abp.UI.Navigation;
+using Volo.Abp.AspNetCore.Components.Web.Theming.Toolbars;
+using HQSOFT.Common.Blazor.Toolbars;
 
 namespace HQSOFT.Common.Blazor;
-
 [DependsOn(
     typeof(CommonApplicationContractsModule),
     typeof(AbpAspNetCoreComponentsWebThemingModule),
@@ -33,6 +34,11 @@ public class CommonBlazorModule : AbpModule
         Configure<AbpRouterOptions>(options =>
         {
             options.AdditionalAssemblies.Add(typeof(CommonBlazorModule).Assembly);
+        });
+
+        Configure<AbpToolbarOptions>(options =>
+        {
+            options.Contributors.Add(new CommonToolbarContributor());
         });
     }
 }

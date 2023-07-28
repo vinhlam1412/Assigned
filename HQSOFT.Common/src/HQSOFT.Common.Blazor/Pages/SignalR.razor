@@ -1,28 +1,41 @@
 ﻿@page "/test"
+@using HQSOFT.Common.HQAssigneds;
+@using HQSOFT.Common.HQNotifications;
 @using Microsoft.AspNetCore.Components.Authorization;
 @using Microsoft.AspNetCore.Components.Forms;
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 @using Microsoft.AspNetCore.SignalR.Client;
+@using Volo.Abp.Application.Dtos;
 @using Volo.Abp.MultiTenancy
 @using Volo.Abp.Users;
 @inherits CommonComponentBase
 @inject ICurrentTenant CurrentTenant
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IAccessTokenProvider TokenProvider
+@inject IHQNotificationsAppService HQNotificationsAppService
 
+@********************************************************NOTIFICATION***********************************************@
+
+<div id="dropdown-overview-target-container">
+    <DxButton RenderStyle="@ButtonRenderStyle.None">
+        <div class="ikrNoti_Button"><!--!--><a class="fa fa-bell"></a></div>
+        <div class="ikrNoti_Counter">@HQNotificationList.Count(m=>m.ToUser == Guid.Parse("3a0ca70f-07d1-a019-8466-cde6e2e2314a"))</div>
+    </DxButton>
+</div>
 
 
 <div class="container">
 
     <div class="form-group">
         <label>
-            Signal R Connection State:@state
+            @*Signal R Connection State:@state*@
         </Label>
     </div>
     <div class="form-group">
         <label>
             Message:
-            <input @bind="messageInput" size="50" />
+              <DxTextBox @bind-Text="messageInput.NotiTitle"></DxTextBox>
+             <DxTextBox @bind-Text="messageInput.NotiBody"></DxTextBox>      
         </label>
     </div>
     <button @onclick="Send" disabled="@(!IsConnected)">Send</button>
@@ -31,7 +44,8 @@
     <ul id="messagesList">
         @foreach (var replyMessage in messages)
         {
-            <li>@replyMessage</li>
+            <li>@replyMessage.NotiBody</li>
+            <li>@replyMessage.NotiTitle</li>
         }
     </ul>
 </div>
@@ -39,41 +53,83 @@
 @code
 {
     public bool IsConnected => hubConnection?.State == HubConnectionState.Connected;
-    private HubConnection? hubConnection;
-    private List<string> messages = new List<string>();
-    private string? messageInput;
+    private HubConnection hubConnection;
+    private List<HQNotificationCreateDto> messages = new List<HQNotificationCreateDto>();
+    private HQNotificationCreateDto? messageInput;
     private string? state;
+
+
+    private IReadOnlyList<HQNotificationDto> HQNotificationList { get; set; }
+    private IReadOnlyList<HQNotificationDto> notify { get; set; }
+    private int PageSize { get; } = LimitedResultRequestDto.DefaultMaxResultCount;
+    private int CurrentPage { get; set; } = 1;
+    private string CurrentSorting { get; set; } = string.Empty;
+    private int TotalCount { get; set; }
+    private GetHQNotificationsInput Filter { get; set; }
+
+    private async Task CreateHQNotificationAsync()
+    {
+        try
+        {
+            await HQNotificationsAppService.CreateAsync(messageInput);
+        }
+        catch (Exception ex)
+        {
+            await HandleErrorAsync(ex);
+        }
+    }
+
+    private async Task GetHQNotificationsAsync()
+    {
+        Filter.MaxResultCount = PageSize;
+        Filter.SkipCount = (CurrentPage - 1) * PageSize;
+        Filter.Sorting = CurrentSorting;
+
+        var result = await HQNotificationsAppService.GetListAsync(Filter);
+        notify = result.Items.OrderByDescending(m=>m.CreationTime).ToList();
+        TotalCount = (int)result.TotalCount;
+        StateHasChanged();
+    }
+    public SignalR()
+    {
+        Filter = new GetHQNotificationsInput
+        {
+            MaxResultCount = PageSize,
+            SkipCount = (CurrentPage - 1) * PageSize,
+            Sorting = CurrentSorting
+        };
+        HQNotificationList = new List<HQNotificationDto>();
+        notify = new List<HQNotificationDto>();
+        messageInput = new HQNotificationCreateDto();
+    }
 
     protected override async Task OnInitializedAsync()
     {
+        await GetHQNotificationsAsync();
         await base.OnInitializedAsync();
 
-        if (CurrentUser.IsAuthenticated)
+
+        var tokenResult = await TokenProvider.RequestAccessToken();
+        if (tokenResult.TryGetToken(out var token))
         {
-            var tokenResult = await TokenProvider.RequestAccessToken();
-            var test = CurrentUser.Id;
-
-            if (tokenResult.TryGetToken(out var token))
+            hubConnection = new HubConnectionBuilder()
+            .WithUrl("https://localhost:44373/signalr-hubs/messaging", options =>
             {
-                hubConnection = new HubConnectionBuilder()
-                .WithUrl("https://localhost:44373/signalr-hubs/messaging", options =>
-                {
-                    options.AccessTokenProvider = () => Task.FromResult(token.Value);
-                }).Build();
+                options.AccessTokenProvider = () => Task.FromResult(token.Value);
+            }).Build();
 
-                hubConnection.On<string>("MessageBackToBlazor", (message) =>
-                                                                            {
-                                                                                // Comes from Host
-                                                                                var encodedMsg = $"Message: {message}";
-                                                                                messages.Add(encodedMsg);
-                                                                                StateHasChanged();
-                                                                            });
+            hubConnection.On<HQNotificationCreateDto>("MessageBackToBlazor", (message) =>
+                                                                        {
+                                                                            // Comes from Host                                                                        
+                                                                            messages.Add(message);
+                                                                            GetHQNotificationsAsync();
+                                                                            StateHasChanged();
+                                                                        });
 
-                await hubConnection.StartAsync();
+            await hubConnection.StartAsync();
 
 
-                state = hubConnection.State.ToString();
-            }
+            //state = hubConnection.State.ToString();
         }
     }
 
@@ -81,7 +137,9 @@
     {
         if (hubConnection is not null)
         {
+            await CreateHQNotificationAsync();
             await hubConnection.SendAsync("SendMessage", messageInput);
+            messageInput = new HQNotificationCreateDto();
         }
     }
 

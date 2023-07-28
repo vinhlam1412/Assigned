@@ -1,3 +1,4 @@
+using HQSOFT.Common.HQNotifications;
 using HQSOFT.Common.HQShares;
 using HQSOFT.Common.HQAssigneds;
 using HQSOFT.Common.HQTasks;
@@ -27,6 +28,8 @@ public class CommonEntityFrameworkCoreModule : AbpModule
             options.AddRepository<HQAssigned, HQAssigneds.EfCoreHQAssignedRepository>();
 
             options.AddRepository<HQShare, HQShares.EfCoreHQShareRepository>();
+
+            options.AddRepository<HQNotification, HQNotifications.EfCoreHQNotificationRepository>();
 
         });
     }

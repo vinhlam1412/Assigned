@@ -1,3 +1,4 @@
+using HQSOFT.Common.HQNotifications;
 using HQSOFT.Common.HQShares;
 using HQSOFT.Common.HQAssigneds;
 using HQSOFT.Common.HQTasks;
@@ -11,6 +12,7 @@ namespace HQSOFT.Common.EntityFrameworkCore;
 [ConnectionStringName(CommonDbProperties.ConnectionStringName)]
 public interface ICommonDbContext : IEfCoreDbContext
 {
+    DbSet<HQNotification> HQNotifications { get; set; }
     DbSet<HQShare> HQShares { get; set; }
     DbSet<HQAssigned> HQAssigneds { get; set; }
     DbSet<HQTask> HQTasks { get; set; }

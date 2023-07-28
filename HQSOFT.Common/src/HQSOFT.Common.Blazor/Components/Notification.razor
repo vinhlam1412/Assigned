@@ -1,0 +1,131 @@
+﻿@using HQSOFT.Common.HQNotifications;
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+@using Microsoft.AspNetCore.SignalR.Client;
+@using Volo.Abp.Application.Dtos;
+@inherits Volo.Abp.AspNetCore.Components.AbpComponentBase
+@inject IHQNotificationsAppService HQNotificationAppService
+@inject IAccessTokenProvider TokenProvider
+
+<div id="dropdown-overview-target-container">
+    <DxButton RenderStyle="@ButtonRenderStyle.None" Click="() => IsOpen = !IsOpen">
+        <div class="ikrNoti_Button"><!--!--><a class="fa fa-bell"></a></div>
+        <div class="ikrNoti_Counter">@notify.Count(m=>m.ToUser == CurrentUser.Id)</div>
+    </DxButton>
+</div>
+
+<DxDropDown @bind-IsOpen="@IsOpen"
+            HeaderVisible="true"
+            HeaderText="Notifications"
+            PositionMode="DropDownPositionMode.Bottom"
+            Width="max(25vw, 250px)"
+            PositionTarget="#dropdown-overview-target-container"
+            RestrictionTarget="#Navigation-DropDown-Overview"
+            CloseMode="DropDownCloseMode.Close"
+            PreventCloseOnPositionTargetClick="true">
+    <BodyContentTemplate>
+        @foreach (var notifi in notify.Where(m => m.ToUser == CurrentUser.Id).Take(numberOfrecords))
+        {
+            <div class="d-flex pt-2 demo-employee-card">
+                <div class="flex-shrink-0" >
+                    <img src="https://vapa.vn/wp-content/uploads/2022/12/anh-cute-001-1.jpg" width="50" />
+                </div>
+                <div class="flex-grow-1 ps-3">
+                    <h5>@notifi.NotiTitle</h5>
+                    <p>@notifi.IDParent</p>
+                    <p>@notifi.NotiBody</p>
+                </div>
+            </div>
+        }
+        <div class="ikrSeeAll"><a href="/Common/HQNotifications">See All</a></div>
+    </BodyContentTemplate>
+</DxDropDown>
+@code {
+    bool IsOpen { get; set; } = false;
+    private int CurrentPage { get; set; } = 1;
+    private string CurrentSorting { get; set; } = string.Empty;
+    private int TotalCount { get; set; }
+    private int PageSize { get; } = LimitedResultRequestDto.DefaultMaxResultCount;
+
+    int numberOfrecords = 3;
+
+    //-----------------------Notifi-----------------------
+    private IReadOnlyList<HQNotificationDto> HQNotificationList { get; set; }
+    private IReadOnlyList<HQNotificationDto> notify { get; set; }
+    private GetHQNotificationsInput FilterNotify { get; set; }
+
+    private HubConnection hubConnection;
+    private List<HQNotificationCreateDto> messages = new List<HQNotificationCreateDto>();
+    private HQNotificationCreateDto? messageInput;
+
+    public Notification()
+    {
+        //-------------------Notify---------------------
+        HQNotificationList = new List<HQNotificationDto>();
+        notify = new List<HQNotificationDto>();
+        messageInput = new HQNotificationCreateDto();
+
+        FilterNotify = new GetHQNotificationsInput
+            {
+                MaxResultCount = PageSize,
+                SkipCount = (CurrentPage - 1) * PageSize,
+                Sorting = CurrentSorting
+            };
+    }
+    private async Task GetHQNotificationsAsync()
+    {
+        FilterNotify.MaxResultCount = PageSize;
+        FilterNotify.SkipCount = (CurrentPage - 1) * PageSize;
+        FilterNotify.Sorting = CurrentSorting;
+
+        var result = await HQNotificationAppService.GetListAsync(FilterNotify);
+        notify = result.Items.OrderByDescending(m => m.CreationTime).ToList();
+        TotalCount = (int)result.TotalCount;
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetHQNotificationsAsync();
+        //notify = await HQNotificationAppService.GetAllAsync();
+        await base.OnInitializedAsync();
+        //-----------------------------SignalR-----------------------
+        var tokenResult = await TokenProvider.RequestAccessToken();
+        if (tokenResult.TryGetToken(out var token))
+        {
+            hubConnection = new HubConnectionBuilder()
+            .WithUrl("https://localhost:44373/signalr-hubs/messaging", options =>
+            {
+                options.AccessTokenProvider = () => Task.FromResult(token.Value);
+            }).Build();
+
+            hubConnection.On<HQNotificationCreateDto>("MessageBackToBlazor", (message) =>
+            {
+                // Comes from Host
+                messages.Add(message);
+                GetHQNotificationsAsync();
+                StateHasChanged();
+            });
+
+            await hubConnection.StartAsync();
+
+        }
+    }
+
+    private async Task ShowNotifications()
+    {
+        await Message.Info("TODO: Show notifications");
+    }
+}
+
+
+
+
+
+
+<style>
+    .nav-item{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+</style>

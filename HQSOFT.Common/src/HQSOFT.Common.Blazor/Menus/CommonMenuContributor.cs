@@ -22,6 +22,8 @@ public class CommonMenuContributor : IMenuContributor
         //AddMenuItemHQAssigneds(context, moduleMenu);
 
         AddMenuItemHQShares(context, moduleMenu);
+
+        AddMenuItemHQNotifications(context, moduleMenu);
     }
 
     private static async Task ConfigureMainMenuAsync(MenuConfigurationContext context)
@@ -79,6 +81,19 @@ public class CommonMenuContributor : IMenuContributor
                 "/Common/HQShares",
                 icon: "fa fa-file-alt",
                 requiredPermissionName: CommonPermissions.HQShares.Default
+            )
+        );
+    }
+
+    private static void AddMenuItemHQNotifications(MenuConfigurationContext context, ApplicationMenuItem parentMenu)
+    {
+        parentMenu.AddItem(
+            new ApplicationMenuItem(
+                Menus.CommonMenus.HQNotifications,
+                context.GetLocalizer<CommonResource>()["Menu:HQNotifications"],
+                "/Common/HQNotifications",
+                icon: "fa fa-file-alt",
+                requiredPermissionName: CommonPermissions.HQNotifications.Default
             )
         );
     }

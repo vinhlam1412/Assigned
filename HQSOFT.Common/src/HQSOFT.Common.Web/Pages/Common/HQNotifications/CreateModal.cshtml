@@ -1,0 +1,47 @@
+@page
+@using Microsoft.AspNetCore.Mvc.Localization
+@using HQSOFT.Common.Localization
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
+@using HQSOFT.Common.Web.Pages.Common.HQNotifications
+@using HQSOFT.Common.HQNotifications;
+@using System.Globalization
+@inject IHtmlLocalizer<CommonResource> L
+@model CreateModalModel
+@{
+    Layout = null;
+}
+
+<form data-ajaxForm="true" asp-page="/Common/HQNotifications/CreateModal" autocomplete="off">
+    <abp-modal id="HQNotificationCreateModal">
+        <abp-modal-header title="@L["NewHQNotification"].Value"></abp-modal-header>
+
+        <abp-modal-body>
+                    
+
+            <abp-input asp-for="HQNotification.IDParent"   />
+
+
+            <abp-input asp-for="HQNotification.ToUser"   />
+
+
+            <abp-input asp-for="HQNotification.FromUser"   />
+
+
+            <abp-input asp-for="HQNotification.NotiTitle"   />
+
+
+            <abp-input asp-for="HQNotification.NotiBody"   />
+
+
+            <abp-input asp-for="HQNotification.Type"   />
+
+
+            <abp-input asp-for="HQNotification.isRead"   />
+
+                    
+                
+        </abp-modal-body>
+
+        <abp-modal-footer buttons="@(AbpModalButtons.Cancel|AbpModalButtons.Save)"></abp-modal-footer>
+    </abp-modal>
+</form>

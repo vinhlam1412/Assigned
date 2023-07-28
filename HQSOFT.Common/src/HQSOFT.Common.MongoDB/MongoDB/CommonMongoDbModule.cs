@@ -1,3 +1,4 @@
+using HQSOFT.Common.HQNotifications;
 using HQSOFT.Common.HQShares;
 using HQSOFT.Common.HQAssigneds;
 using HQSOFT.Common.HQTasks;
@@ -25,6 +26,8 @@ public class CommonMongoDbModule : AbpModule
             options.AddRepository<HQAssigned, HQAssigneds.MongoHQAssignedRepository>();
 
             options.AddRepository<HQShare, HQShares.MongoHQShareRepository>();
+
+            options.AddRepository<HQNotification, HQNotifications.MongoHQNotificationRepository>();
 
         });
     }

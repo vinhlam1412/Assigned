@@ -108,6 +108,85 @@ namespace HQSOFT.Common.Migrations
                     b.ToTable("CommonHQAssignedIdentityUser", (string)null);
                 });
 
+            modelBuilder.Entity("HQSOFT.Common.HQNotifications.HQNotification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("ConcurrencyStamp");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<string>("ExtraProperties")
+                        .HasColumnType("text")
+                        .HasColumnName("ExtraProperties");
+
+                    b.Property<Guid>("FromUser")
+                        .HasColumnType("uuid")
+                        .HasColumnName("FromUser");
+
+                    b.Property<Guid>("IDParent")
+                        .HasColumnType("uuid")
+                        .HasColumnName("IDParent");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("NotiBody")
+                        .HasColumnType("text")
+                        .HasColumnName("NotiBody");
+
+                    b.Property<string>("NotiTitle")
+                        .HasColumnType("text")
+                        .HasColumnName("NotiTitle");
+
+                    b.Property<Guid>("ToUser")
+                        .HasColumnType("uuid")
+                        .HasColumnName("ToUser");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("text")
+                        .HasColumnName("Type");
+
+                    b.Property<bool>("isRead")
+                        .HasColumnType("boolean")
+                        .HasColumnName("isRead");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CommonHQNotifications", (string)null);
+                });
+
             modelBuilder.Entity("HQSOFT.Common.HQShares.HQShare", b =>
                 {
                     b.Property<Guid>("Id")

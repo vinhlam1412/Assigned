@@ -5,22 +5,16 @@ using System.Threading.Tasks;
 using System;
 using Volo.Abp.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Authorization;
+using HQSOFT.Common.HQNotifications;
 
 namespace HQSOFT.Common.Hubs
 {
-    [Authorize]
+    //[Authorize]
     public class MessagingHub : AbpHub
     {
-        public async Task SendMessage(string message)
+        public async Task SendMessage(HQNotificationDto message)
         {
-            message = $"{CurrentUser.UserName}: {message}";
-
-            await Clients
-                .User(CurrentUser.Id.ToString())
-                .SendAsync("MessageBackToBlazor", message);
-
-            //This works for sending to ALL
-            //await Clients.All.SendAsync("MessageBackToBlazor", message);
+            await Clients.All.SendAsync("MessageBackToBlazor", message);
         }
     }
 }

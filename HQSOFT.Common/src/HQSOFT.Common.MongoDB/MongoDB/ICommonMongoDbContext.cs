@@ -1,3 +1,4 @@
+using HQSOFT.Common.HQNotifications;
 using HQSOFT.Common.HQShares;
 using HQSOFT.Common.HQAssigneds;
 using HQSOFT.Common.HQTasks;
@@ -10,6 +11,7 @@ namespace HQSOFT.Common.MongoDB;
 [ConnectionStringName(CommonDbProperties.ConnectionStringName)]
 public interface ICommonMongoDbContext : IAbpMongoDbContext
 {
+    IMongoCollection<HQNotification> HQNotifications { get; }
     IMongoCollection<HQShare> HQShares { get; }
     IMongoCollection<HQAssigned> HQAssigneds { get; }
     IMongoCollection<HQTask> HQTasks { get; }

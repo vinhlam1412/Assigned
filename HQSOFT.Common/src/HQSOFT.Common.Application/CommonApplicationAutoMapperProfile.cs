@@ -1,3 +1,4 @@
+using HQSOFT.Common.HQNotifications;
 using HQSOFT.Common.HQShares;
 using Volo.Abp.Identity;
 using HQSOFT.Common.HQAssigneds;
@@ -31,5 +32,8 @@ public class CommonApplicationAutoMapperProfile : Profile
         CreateMap<HQShare, HQShareDto>();
         CreateMap<HQShare, HQShareExcelDto>();
         CreateMap<HQShareWithNavigationProperties, HQShareWithNavigationPropertiesDto>();
+
+        CreateMap<HQNotification, HQNotificationDto>();
+        CreateMap<HQNotification, HQNotificationExcelDto>();
     }
 }

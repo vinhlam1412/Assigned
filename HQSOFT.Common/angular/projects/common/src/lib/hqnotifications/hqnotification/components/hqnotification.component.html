@@ -1,0 +1,332 @@
+<abp-page [title]="'Common::HQNotifications' | abpLocalization">
+  <abp-page-toolbar-container class="col">
+    <div class="text-lg-end pt-2">
+      <button
+        class="btn btn-primary btn-sm mx-2"
+        type="button"
+        [disabled]="isExportToExcelBusy"
+        (click)="exportToExcel()"
+      >
+        {{ 'Common::ExportToExcel' | abpLocalization }}
+      </button>
+
+      <button
+        *abpPermission="'Common.HQNotifications.Create'"
+        class="btn btn-primary btn-sm"
+        type="button"
+        (click)="create()"
+      >
+        <i class="fa fa-plus me-1" aria-hidden="true"></i>
+        {{ 'Common::NewHQNotification' | abpLocalization }}
+      </button>
+    </div>
+  </abp-page-toolbar-container>
+
+  <abp-advanced-entity-filters localizationSourceName="Common" [list]="list">
+    <abp-advanced-entity-filters-form>
+      <form #filterForm (keyup.enter)="list.get()">
+        <div class="row">
+          <div class="col-12 col-sm-auto">
+            <div class="mb-3">
+              <label class="form-label" for="idParentFilter">
+                {{ 'Common::IDParent' | abpLocalization }}
+              </label>
+
+              <input
+                id="idParentFilter"
+                class="form-control"
+                [(ngModel)]="filters.idParent"
+                [ngModelOptions]="{ standalone: true }"
+              />
+            </div>
+          </div>
+          <div class="col-12 col-sm-auto">
+            <div class="mb-3">
+              <label class="form-label" for="toUserFilter">
+                {{ 'Common::ToUser' | abpLocalization }}
+              </label>
+
+              <input
+                id="toUserFilter"
+                class="form-control"
+                [(ngModel)]="filters.toUser"
+                [ngModelOptions]="{ standalone: true }"
+              />
+            </div>
+          </div>
+          <div class="col-12 col-sm-auto">
+            <div class="mb-3">
+              <label class="form-label" for="fromUserFilter">
+                {{ 'Common::FromUser' | abpLocalization }}
+              </label>
+
+              <input
+                id="fromUserFilter"
+                class="form-control"
+                [(ngModel)]="filters.fromUser"
+                [ngModelOptions]="{ standalone: true }"
+              />
+            </div>
+          </div>
+          <div class="col-12 col-sm-auto">
+            <div class="mb-3">
+              <label class="form-label" for="notiTitleFilter">
+                {{ 'Common::NotiTitle' | abpLocalization }}
+              </label>
+
+              <input
+                id="notiTitleFilter"
+                class="form-control"
+                [(ngModel)]="filters.notiTitle"
+                [ngModelOptions]="{ standalone: true }"
+              />
+            </div>
+          </div>
+          <div class="col-12 col-sm-auto">
+            <div class="mb-3">
+              <label class="form-label" for="notiBodyFilter">
+                {{ 'Common::NotiBody' | abpLocalization }}
+              </label>
+
+              <input
+                id="notiBodyFilter"
+                class="form-control"
+                [(ngModel)]="filters.notiBody"
+                [ngModelOptions]="{ standalone: true }"
+              />
+            </div>
+          </div>
+          <div class="col-12 col-sm-auto">
+            <div class="mb-3">
+              <label class="form-label" for="typeFilter">
+                {{ 'Common::Type' | abpLocalization }}
+              </label>
+
+              <input
+                id="typeFilter"
+                class="form-control"
+                [(ngModel)]="filters.type"
+                [ngModelOptions]="{ standalone: true }"
+              />
+            </div>
+          </div>
+          <div class="col-12 col-sm-auto">
+            <div class="mb-3">
+              <label class="form-label" for="isReadFilter">
+                {{ 'Common::isRead' | abpLocalization }}
+              </label>
+
+              <select
+                name="isRead"
+                id="isReadFilter"
+                class="form-select form-control"
+                [(ngModel)]="filters.isRead"
+                [ngModelOptions]="{ standalone: true }"
+                (change)="list.get()"
+              >
+                <option [ngValue]=""></option>
+                <option [ngValue]="true">{{ 'AbpUi::Yes' | abpLocalization }}</option>
+                <option [ngValue]="false">{{ 'AbpUi::No' | abpLocalization }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="col-12 col-sm-auto align-self-end mb-3">
+            <div class="row">
+              <div class="col-6 col-sm-auto d-grid">
+                <button type="button" class="btn btn-outline-primary" (click)="clearFilters()">
+                  <span>{{ 'AbpUi::Clear' | abpLocalization }}</span>
+                </button>
+              </div>
+              <div class="col-6 col-sm-auto d-grid">
+                <button type="button" class="btn btn-primary" (click)="list.get()">
+                  <span>{{ 'AbpUi::Refresh' | abpLocalization }}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </abp-advanced-entity-filters-form>
+  </abp-advanced-entity-filters>
+
+  <div class="card">
+    <div class="card-body">
+      <ngx-datatable [rows]="data.items" [count]="data.totalCount" [list]="list" default>
+        <ngx-datatable-column
+          [name]="'AbpUi::Actions' | abpLocalization"
+          [maxWidth]="150"
+          [width]="150"
+          [sortable]="false"
+        >
+          <ng-template let-row="row" let-i="rowIndex" ngx-datatable-cell-template>
+            <div ngbDropdown container="body" class="d-inline-block">
+              <button
+                class="btn btn-primary btn-sm dropdown-toggle"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                ngbDropdownToggle
+              >
+                <i class="fa fa-cog me-1" aria-hidden="true"></i>
+                {{ 'AbpUi::Actions' | abpLocalization }}
+              </button>
+
+              <div ngbDropdownMenu>
+                <button
+                  ngbDropdownItem
+                  *abpPermission="'Common.HQNotifications.Edit'"
+                  (click)="update(row)"
+                >
+                  {{ 'AbpUi::Edit' | abpLocalization }}
+                </button>
+
+                <button
+                  ngbDropdownItem
+                  *abpPermission="'Common.HQNotifications.Delete'"
+                  (click)="delete(row)"
+                >
+                  {{ 'AbpUi::Delete' | abpLocalization }}
+                </button>
+              </div>
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="{{ 'Common::IDParent' | abpLocalization }}" prop="idParent">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            {{ row.idParent }}
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="{{ 'Common::ToUser' | abpLocalization }}" prop="toUser">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            {{ row.toUser }}
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="{{ 'Common::FromUser' | abpLocalization }}" prop="fromUser">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            {{ row.fromUser }}
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="{{ 'Common::NotiTitle' | abpLocalization }}" prop="notiTitle">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            {{ row.notiTitle }}
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="{{ 'Common::NotiBody' | abpLocalization }}" prop="notiBody">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            {{ row.notiBody }}
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="{{ 'Common::Type' | abpLocalization }}" prop="type">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            {{ row.type }}
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="{{ 'Common::isRead' | abpLocalization }}" prop="isRead">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <ng-template [ngIf]="row.isRead" [ngIfThen]="yes" [ngIfElse]="no"></ng-template>
+
+            <ng-template #yes>
+              <div class="text-success">
+                <span [title]="'AbpUi::Yes' | abpLocalization">
+                  <i class="fa fa-check" aria-hidden="true"></i>
+                </span>
+              </div>
+            </ng-template>
+
+            <ng-template #no>
+              <div class="text-danger">
+                <span [title]="'AbpUi::No' | abpLocalization">
+                  <i class="fa fa-times" aria-hidden="true"></i>
+                </span>
+              </div>
+            </ng-template>
+          </ng-template>
+        </ngx-datatable-column>
+      </ngx-datatable>
+    </div>
+  </div>
+</abp-page>
+
+<abp-modal [busy]="isModalBusy" [(visible)]="isModalOpen">
+  <ng-template #abpHeader>
+    <h3>
+      {{ (selected ? 'AbpUi::Edit' : 'Common::NewHQNotification') | abpLocalization }}
+    </h3>
+  </ng-template>
+
+  <ng-template #abpBody>
+    <form [formGroup]="form" id="hqnotification" (ngSubmit)="submitForm()" validateOnSubmit>
+      <div class="mt-2 fade-in-top">
+        <div class="mb-3">
+          <label class="form-label" for="hqnotification-idparent">
+            {{ 'Common::IDParent' | abpLocalization }}
+          </label>
+
+          <input
+            id="hqnotification-idparent"
+            formControlName="idParent"
+            class="form-control"
+            autofocus
+          />
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="hqnotification-to-user">
+            {{ 'Common::ToUser' | abpLocalization }}
+          </label>
+
+          <input id="hqnotification-to-user" formControlName="toUser" class="form-control" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="hqnotification-from-user">
+            {{ 'Common::FromUser' | abpLocalization }}
+          </label>
+
+          <input id="hqnotification-from-user" formControlName="fromUser" class="form-control" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="hqnotification-noti-title">
+            {{ 'Common::NotiTitle' | abpLocalization }}
+          </label>
+
+          <input id="hqnotification-noti-title" formControlName="notiTitle" class="form-control" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="hqnotification-noti-body">
+            {{ 'Common::NotiBody' | abpLocalization }}
+          </label>
+
+          <input id="hqnotification-noti-body" formControlName="notiBody" class="form-control" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="hqnotification-type">
+            {{ 'Common::Type' | abpLocalization }}
+          </label>
+
+          <input id="hqnotification-type" formControlName="type" class="form-control" />
+        </div>
+        <div class="form-check mb-3">
+          <input
+            type="checkbox"
+            id="hqnotification-is-read"
+            formControlName="isRead"
+            class="form-check-input"
+          />
+
+          <label for="hqnotification-is-read" class="form-check-label">
+            {{ 'Common::isRead' | abpLocalization }}
+          </label>
+        </div>
+      </div>
+    </form>
+  </ng-template>
+
+  <ng-template #abpFooter>
+    <button type="button" class="btn btn-secondary" abpClose>
+      {{ 'AbpUi::Cancel' | abpLocalization }}
+    </button>
+
+    <abp-button iconClass="fa fa-check" buttonType="submit" formName="hqnotification">
+      {{ 'AbpUi::Save' | abpLocalization }}
+    </abp-button>
+  </ng-template>
+</abp-modal>

@@ -4,6 +4,7 @@ import { CommonComponent } from './components/common.component';
 import { loadHQTaskModuleAsChild } from './hqtasks/hqtask/hqtask.module';
 import { loadHQAssignedModuleAsChild } from './hqassigneds/hqassigned/hqassigned.module';
 import { loadHQShareModuleAsChild } from './hqshares/hqshare/hqshare.module';
+import { loadHQNotificationModuleAsChild } from './hqnotifications/hqnotification/hqnotification.module';
 
 const routes: Routes = [
   {
@@ -14,6 +15,7 @@ const routes: Routes = [
   { path: 'hqtasks', loadChildren: loadHQTaskModuleAsChild },
   { path: 'hqassigneds', loadChildren: loadHQAssignedModuleAsChild },
   { path: 'hqshares', loadChildren: loadHQShareModuleAsChild },
+  { path: 'hqnotifications', loadChildren: loadHQNotificationModuleAsChild },
 ];
 
 @NgModule({

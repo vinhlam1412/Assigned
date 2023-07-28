@@ -2,10 +2,12 @@
 using DevExpress.XtraPrinting;
 using HQSOFT.Common.Blazor.Pages.Common;
 using HQSOFT.Common.HQAssigneds;
+using HQSOFT.Common.HQNotifications;
 using HQSOFT.Common.HQShares;
 using HQSOFT.Common.HQTasks;
 using HQSOFT.Common.Shared;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.SignalR.Client;
 using Newtonsoft.Json.Linq;
 using Nito.AsyncEx;
 using System;
@@ -26,16 +28,20 @@ namespace HQSOFT.Common.Blazor.Components
 {
     public partial class HQSOFTLeftSideForm
     {
-        protected List<Volo.Abp.BlazoriseUI.BreadcrumbItem> BreadcrumbItems = new List<Volo.Abp.BlazoriseUI.BreadcrumbItem>();
-        protected PageToolbar Toolbar { get; } = new PageToolbar();
-        private int PageSize { get; } = LimitedResultRequestDto.DefaultMaxResultCount;
 
-        private IReadOnlyList<HQAssignedWithNavigationPropertiesDto> HQAssignedList { get; set; }
-        private IReadOnlyList<HQShareWithNavigationPropertiesDto> HQShareList { get; set; }
-        private IReadOnlyList<LookupDto<Guid>> IdentityUsers { get; set; } = new List<LookupDto<Guid>>();
+        private int PageSize { get; } = LimitedResultRequestDto.DefaultMaxResultCount;
         private int CurrentPage { get; set; } = 1;
         private string CurrentSorting { get; set; } = string.Empty;
         private int TotalCount { get; set; }
+
+        [Parameter]
+        public string Value { get; set; }
+
+        //---------------------Assigned----------------------------
+        private IReadOnlyList<HQAssignedWithNavigationPropertiesDto> HQAssignedList { get; set; }
+        private IReadOnlyList<LookupDto<Guid>> IdentityUsers { get; set; } = new List<LookupDto<Guid>>();
+        private IReadOnlyList<HQShareWithNavigationPropertiesDto> HQShareList { get; set; }
+
         private HQAssignedCreateDto NewHQAssigned { get; set; }
 
         private HQAssignedUpdateDto EditingHQAssigned { get; set; }
@@ -47,81 +53,88 @@ namespace HQSOFT.Common.Blazor.Components
 
         private GetHQAssignedsInput Filter { get; set; }
 
-        private IReadOnlyList<LookupDto<Guid>> HQTasksCollection { get; set; } = new List<LookupDto<Guid>>();
-
-
         public Guid ParentId { get; set; }
 
         private List<string> SelectedIdentityUserId { get; set; }
 
         private List<string> SelectedIdentityUserText { get; set; }
 
-        private string SelectedIdentityUserTextShare { get; set; }
-        private string SelectedIdentityUserIdShare { get; set; }
-
         private List<LookupDto<Guid>> SelectedIdentityAssignedUsers { get; set; } = new List<LookupDto<Guid>>();
-        private LookupDto<Guid> SelectedIdentityShareUsers { get; set; } = new LookupDto<Guid>();
 
+
+        //-----------------------Share-----------------------
         private IReadOnlyList<LookupDto<Guid>> ShareUsersCollection { get; set; } = new List<LookupDto<Guid>>();
-        //-----------------------
         private HQShareCreateDto NewHQShare { get; set; }
         private HQShareUpdateDto EditingHQShare { get; set; }
-
         private List<HQShareWithNavigationPropertiesDto> ListHQShare { get; set; }
-        private HQShareUpdateDto EditingHQShareAll { get; set; }
         private HQShareUpdateDto EditingHQShareAdd { get; set; }
         private Validations EditingHQShareValidations { get; set; } = new();
         private Guid EditingHQShareId { get; set; }
         private Modal EditHQShareModal { get; set; } = new();
         private GetHQSharesInput FilterShare { get; set; }
 
-        public bool checkvalue { get; set; }
-
-        List<HQShareWithNavigationPropertiesDto> listHQShare { get; set; }
 
 
-        //-----------------------
+        //-----------------------Notifi-----------------------
+        private IReadOnlyList<HQNotificationDto> HQNotificationList { get; set; }
+        private IReadOnlyList<HQNotificationDto> notify { get; set; }
+        private GetHQNotificationsInput FilterNotify { get; set; }
 
-        [Parameter]
-        public string Value { get; set; }
+        private HubConnection hubConnection;
+        private List<HQNotificationCreateDto> messages = new List<HQNotificationCreateDto>();
+        private HQNotificationCreateDto? messageInput;
 
 
-        //[Parameter]
-        //public EventCallback AssignmentClick { get; set; }
-
-        //[Parameter]
-        //public Validations Validation { get; set; }
+        //==================================Initialize Section===================================
+        #region
         public HQSOFTLeftSideForm()
         {
+
+            //-------------------Assigned---------------------
             NewHQAssigned = new HQAssignedCreateDto();
             NewHQShare = new HQShareCreateDto();
             EditingHQAssigned = new HQAssignedUpdateDto();
             EditingHQShare = new HQShareUpdateDto();
-            EditingHQShareAll = new HQShareUpdateDto();
             EditingHQShareAdd = new HQShareUpdateDto();
+
             Filter = new GetHQAssignedsInput
             {
                 MaxResultCount = PageSize,
                 SkipCount = (CurrentPage - 1) * PageSize,
                 Sorting = CurrentSorting
             };
+
+
+            //------------------Share--------------------------
+            HQAssignedList = new List<HQAssignedWithNavigationPropertiesDto>();
+            HQShareList = new List<HQShareWithNavigationPropertiesDto>();
+            ListHQShare = new List<HQShareWithNavigationPropertiesDto>();
+            IdentityUsers = new List<LookupDto<Guid>>();
+
             FilterShare = new GetHQSharesInput
             {
                 MaxResultCount = PageSize,
                 SkipCount = (CurrentPage - 1) * PageSize,
                 Sorting = CurrentSorting
             };
-            HQAssignedList = new List<HQAssignedWithNavigationPropertiesDto>();
-            HQShareList = new List<HQShareWithNavigationPropertiesDto>();
-            IdentityUsers = new List<LookupDto<Guid>>();
 
-            listHQShare = new List<HQShareWithNavigationPropertiesDto>();
+            //-------------------Notify---------------------
+            HQNotificationList = new List<HQNotificationDto>();
+            notify = new List<HQNotificationDto>();
+            messageInput = new HQNotificationCreateDto();
 
-            ListHQShare = new List<HQShareWithNavigationPropertiesDto>();
+            FilterNotify = new GetHQNotificationsInput
+            {
+                MaxResultCount = PageSize,
+                SkipCount = (CurrentPage - 1) * PageSize,
+                Sorting = CurrentSorting
+            };
+
         }
         protected override async Task OnInitializedAsync()
         {
-
+            await GetHQNotificationsAsync();
+            await base.OnInitializedAsync();
             if (Value != null && Value.Length > 0)
             {
                 ParentId = Guid.Parse(Value);
@@ -146,7 +159,104 @@ namespace HQSOFT.Common.Blazor.Components
                 }
             };
             SelectedIdentityUserId = new List<string>();
+
+            //-----------------------------SignalR-----------------------
+
+            var tokenResult = await TokenProvider.RequestAccessToken();
+            if (tokenResult.TryGetToken(out var token))
+            {
+                hubConnection = new HubConnectionBuilder()
+                .WithUrl("https://localhost:44373/signalr-hubs/messaging", options =>
+                {
+                    options.AccessTokenProvider = () => Task.FromResult(token.Value);
+                }).Build();
+
+                hubConnection.On<HQNotificationCreateDto>("MessageBackToBlazor", (message) =>
+                {
+                    // Comes from Host                                                                        
+                    messages.Add(message);
+                    GetHQNotificationsAsync();
+                    StateHasChanged();
+                });
+
+                await hubConnection.StartAsync();
+
+            }
         }
+        #endregion
+
+        //======================Load Data Source for ListView & Others===========================
+        #region
+        private async Task GetIdentityUserLookupAsync(string? newValue = null)
+        {
+            IdentityUsers = (await HQAssignedsAppService.GetIdentityUserLookupAsync(new LookupRequestDto { Filter = newValue })).Items;
+        }
+
+        private async Task GetIdentityUserCollectionLookupAsync(string? newValue = null)
+        {
+            ShareUsersCollection = (await HQSharesAppService.GetIdentityUserLookupAsync(new LookupRequestDto { Filter = newValue })).Items;
+        }
+        #endregion
+
+
+        //======================CRUD & Load Main Data Source Section=============================
+        #region
+
+        //-------------------------------Assigned------------------------------------------------
+        private async Task CreateHQAssigmentAsync()
+        {
+            try
+            {
+                if (await EditingHQAssignedValidations.ValidateAll() == false)
+                {
+                    return;
+                }
+
+                //Create new Assigned if Parent dont have Assigned
+                if (EditingHQAssignedId == Guid.Empty)
+                {
+                    NewHQAssigned = ObjectMapper.Map<HQAssignedUpdateDto, HQAssignedCreateDto>(EditingHQAssigned);
+                    AddIdentityUserAssigned();
+                    NewHQAssigned.IdentityUserIds = SelectedIdentityAssignedUsers.Select(x => x.Id).ToList();
+                    EditingHQAssigned.IDParent = Value;
+                    await HQAssignedsAppService.CreateAsync(NewHQAssigned);
+                    await Send();
+                }
+
+                //Update Assigned if Parent have Assigned
+                else
+                {
+                    await UpdateHQAssigmentAsync();
+
+                }
+
+                await CloseCreateHQAssignedModalAsync();
+            }
+            catch (Exception ex)
+            {
+                await HandleErrorAsync(ex);
+            }
+        }
+        private async Task UpdateHQAssigmentAsync()
+        {
+            try
+            {
+                if (await EditingHQAssignedValidations.ValidateAll() == false)
+                {
+                    return;
+                }
+                AddIdentityUserAssigned();
+                EditingHQAssigned.IdentityUserIds = SelectedIdentityAssignedUsers.Select(x => x.Id).ToList();
+                await HQAssignedsAppService.UpdateAsync(EditingHQAssignedId, EditingHQAssigned);
+                await GetHQAssigmentsAsync();
+                await EditHQAssignedModal.Hide();
+            }
+            catch (Exception ex)
+            {
+                await HandleErrorAsync(ex);
+            }
+        }
+
         private async Task GetHQAssigmentsAsync()
         {
             Filter.MaxResultCount = PageSize;
@@ -158,6 +268,58 @@ namespace HQSOFT.Common.Blazor.Components
             TotalCount = (int)result.TotalCount;
         }
 
+        private async Task LoadListShareUserAsync()
+        {
+            ListHQShare.Clear();
+            List<HQShareDto> hqShareWithParent = await HQSharesAppService.GetParentAsync(Value);
+
+            if (hqShareWithParent != null)
+            {
+                foreach (var item in hqShareWithParent)
+                {
+                    var hQShare = await HQSharesAppService.GetWithNavigationPropertiesAsync(item.Id);
+                    ListHQShare.Add(hQShare);
+                }
+
+            }
+        }
+
+        //-------------------------------Share---------------------------------------------------
+        private async Task CreateHQShareAsync()
+        {
+            try
+            {
+                bool userAlreadyAdded = await CheckShareUserAsync();
+                if (EditingHQShare.IdentityUserId == null)
+                {
+                    return;
+                }
+                else
+                {
+                    NewHQShare = ObjectMapper.Map<HQShareUpdateDto, HQShareCreateDto>(EditingHQShare);
+                    NewHQShare.IDParent = Value;
+                    NewHQShare.CanRead = true;
+                    if (userAlreadyAdded)
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        await HQSharesAppService.CreateAsync(NewHQShare);
+                        StateHasChanged();
+                        await LoadListShareUserAsync();
+                        await EditingHQShareValidations.ClearAll();
+                        await ClearEdittingHQShare();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await HandleErrorAsync(ex);
+            }
+
+
+        }
         private async Task GetHQSharesAsync()
         {
             Filter.MaxResultCount = PageSize;
@@ -169,6 +331,123 @@ namespace HQSOFT.Common.Blazor.Components
             TotalCount = (int)result.TotalCount;
         }
 
+
+        //-------------------------------Notification--------------------------------------------
+        public async Task CreateHQNotificationAsync()
+        {
+            try
+            {
+                foreach (var item in SelectedIdentityUserId)
+                {
+                    messageInput.ToUser = Guid.Parse(item);
+                    messageInput.FromUser = (Guid)CurrentUser.Id;
+                    messageInput.IDParent = Guid.Parse(Value);
+                    messageInput.NotiTitle = $"{CurrentUser.Name} {CurrentUser.SurName} mentioned you!";
+                    messageInput.NotiBody = "Test Assigned";
+                    messageInput.Type = "M";
+                    await HQNotificationAppService.CreateAsync(messageInput);
+                }
+                StateHasChanged();
+            }
+            catch { }
+        }
+
+        private async Task GetHQNotificationsAsync()
+        {
+            FilterNotify.MaxResultCount = PageSize;
+            FilterNotify.SkipCount = (CurrentPage - 1) * PageSize;
+            FilterNotify.Sorting = CurrentSorting;
+
+            var result = await HQNotificationsAppService.GetListAsync(FilterNotify);
+            notify = result.Items.OrderByDescending(m => m.CreationTime).ToList();
+            TotalCount = (int)result.TotalCount;
+            StateHasChanged();
+        }
+        #endregion
+
+
+
+        //=====================================Validations=======================================
+        #region
+        private async Task<bool> CheckShareUserAsync()
+        {
+            List<HQShareDto> hqShareWithParent = await HQSharesAppService.GetParentAsync(Value);
+
+            if (hqShareWithParent != null)
+            {
+                foreach (var item in hqShareWithParent)
+                {
+                    if (EditingHQShare.IdentityUserId == item.IdentityUserId)
+                    {
+                        await UiMessageService.Warn(L["ItemAlreadyAdd"]);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        #endregion
+
+
+        //============================Controls triggers/events===================================
+        #region
+        private async Task OnPermissionReadChanged(bool value, HQShareWithNavigationPropertiesDto input)
+        {
+            if (value == true)
+            {
+                await HQSharesAppService.DeleteAsync(input.HQShare.Id);
+                await LoadListShareUserAsync();
+
+            }
+        }
+        private async Task OnPermissionGeneralChanged(bool value, HQShareWithNavigationPropertiesDto input, string type)
+        {
+            var hqShareUpdate = ObjectMapper.Map<HQShareDto, HQShareUpdateDto>(input.HQShare);
+            if (type == "SH")
+            {
+                hqShareUpdate.CanShare = !value;
+            }
+            if (type == "SB")
+            {
+                hqShareUpdate.CanSubmit = !value;
+            }
+            if (type == "WR")
+            {
+                hqShareUpdate.CanWrite = !value;
+            }
+            await HQSharesAppService.UpdateAsync(input.HQShare.Id, hqShareUpdate);
+            await LoadListShareUserAsync();
+
+        }
+
+        private void AddIdentityUserAssigned()
+        {
+            if (SelectedIdentityUserId.IsNullOrEmpty())
+            {
+                return;
+            }
+
+            foreach (var item in SelectedIdentityUserId)
+            {
+                if (SelectedIdentityAssignedUsers.Any(p => p.Id.ToString() == item))
+                {
+                    UiMessageService.Warn(L["ItemAlreadyAdded"]);
+                    return;
+                }
+            }
+
+
+            for (int i = 0; i < SelectedIdentityUserId.Count; i++)
+            {
+                Guid userId = Guid.Parse(SelectedIdentityUserId[i]);
+                string userText = SelectedIdentityUserText[i];
+                SelectedIdentityAssignedUsers.Add(new LookupDto<Guid>
+                {
+                    Id = userId,
+                    DisplayName = userText
+                });
+            }
+        }
         private async Task OpenEditHQAssignedModalAsync()
         {
             //Truyền vào ParentID để lấy assingment xem đã tồn tại chưa
@@ -238,7 +517,7 @@ namespace HQSOFT.Common.Blazor.Components
 
 
                 };
-            }         
+            }
             await EditHQShareModal.Show();
         }
 
@@ -246,30 +525,13 @@ namespace HQSOFT.Common.Blazor.Components
         {
             if (EditingHQShare != null)
             {
-                 EditingHQShare.CanShare =  false;
-                 EditingHQShare.CanRead = false;
-                 EditingHQShare.CanWrite = false;
-                 EditingHQShare.CanSubmit = false;
-                 EditingHQShare.IdentityUserId = null;
+                EditingHQShare.CanShare = false;
+                EditingHQShare.CanRead = false;
+                EditingHQShare.CanWrite = false;
+                EditingHQShare.CanSubmit = false;
+                EditingHQShare.IdentityUserId = null;
             }
-        }
-
-        private async Task LoadListShareUserAsync()
-        {
-            ListHQShare.Clear();
-            List<HQShareDto> hqShareWithParent = await HQSharesAppService.GetParentAsync(Value);
-
-            if (hqShareWithParent != null)
-            {
-                foreach (var item in hqShareWithParent)
-                {
-                    var hQShare = await HQSharesAppService.GetWithNavigationPropertiesAsync(item.Id);
-                    ListHQShare.Add(hQShare);
-                }
-
-            }
-        }
-
+        }    
 
         private async Task CloseCreateHQAssignedModalAsync()
         {
@@ -282,204 +544,37 @@ namespace HQSOFT.Common.Blazor.Components
             await EditHQShareModal.Hide();
         }
 
-        private async Task CreateHQAssigmentAsync()
+        #endregion
+
+
+
+
+
+
+
+
+
+
+
+
+        private async Task Send()
         {
-            try
+            if (hubConnection is not null)
             {
-                if (await EditingHQAssignedValidations.ValidateAll() == false)
-                {
-                    return;
-                }
-                //EditingHQAssigned.IdentityUserIds = SelectedIdentityUsers.Select(x => x.Id).ToList();
-
-
-                //Create new Assigned if Parent dont have Assigned
-                if (EditingHQAssignedId == Guid.Empty)
-                {
-                    NewHQAssigned = ObjectMapper.Map<HQAssignedUpdateDto, HQAssignedCreateDto>(EditingHQAssigned);
-                    AddIdentityUserAssigned();
-                    NewHQAssigned.IdentityUserIds = SelectedIdentityAssignedUsers.Select(x => x.Id).ToList();
-                    EditingHQAssigned.IDParent = Value;
-                    await HQAssignedsAppService.CreateAsync(NewHQAssigned);
-                }
-
-                //Update Assigned if Parent have Assigned
-                else
-                {
-                    await UpdateHQAssigmentAsync();
-
-                }
-               
-                await CloseCreateHQAssignedModalAsync();
-            }
-            catch (Exception ex)
-            {
-                await HandleErrorAsync(ex);
+                await CreateHQNotificationAsync();
+                //await GetHQNotificationsAsync();
+                await hubConnection.SendAsync("SendMessage", messageInput);
+                messageInput = new HQNotificationCreateDto();
             }
         }
 
-        private async Task CreateHQShareAsync()
+
+        protected override async void Dispose(bool disposing)
         {
-            try
+            base.Dispose(disposing);
+            if (hubConnection is not null)
             {
-                bool userAlreadyAdded = await CheckShareUserAsync();
-                if (EditingHQShare.IdentityUserId == null)
-                {
-                    return;
-                }
-                else
-                {
-                    NewHQShare = ObjectMapper.Map<HQShareUpdateDto, HQShareCreateDto>(EditingHQShare);
-                    NewHQShare.IDParent = Value;
-                    NewHQShare.CanRead = true;
-                    if(userAlreadyAdded)
-                    {
-                        return;
-                    }
-                    else
-                    {
-                        await HQSharesAppService.CreateAsync(NewHQShare);
-                        StateHasChanged();
-                        await LoadListShareUserAsync();
-                        await EditingHQShareValidations.ClearAll();
-                        await ClearEdittingHQShare();
-                    }              
-                }
-            }
-            catch (Exception ex)
-            {
-                await HandleErrorAsync(ex);
-            }
-            
-
-        }
-
-        private async Task OnPermissionReadChanged(bool value, HQShareWithNavigationPropertiesDto input)
-        {
-            if(value == true)
-            {
-                await HQSharesAppService.DeleteAsync(input.HQShare.Id);
-                await LoadListShareUserAsync();
-
-            }
-        }
-        private async Task OnPermissionGeneralChanged( bool value, HQShareWithNavigationPropertiesDto input, string type)
-         {
-            var hqShareUpdate = ObjectMapper.Map<HQShareDto, HQShareUpdateDto>(input.HQShare);
-            if (type == "SH")
-            {
-                hqShareUpdate.CanShare = !value;
-            }
-            if(type == "SB")
-            {
-                hqShareUpdate.CanSubmit = !value;
-            }
-            if (type == "WR")
-            {
-                hqShareUpdate.CanWrite = !value;
-            }
-            await HQSharesAppService.UpdateAsync(input.HQShare.Id, hqShareUpdate);
-            await LoadListShareUserAsync();
-
-        }
-        private async Task GetIdentityUserLookupAsync(string? newValue = null)
-        {
-            IdentityUsers = (await HQAssignedsAppService.GetIdentityUserLookupAsync(new LookupRequestDto { Filter = newValue })).Items;
-        }
-
-        private async Task GetIdentityUserCollectionLookupAsync(string? newValue = null)
-        {
-            ShareUsersCollection = (await HQSharesAppService.GetIdentityUserLookupAsync(new LookupRequestDto { Filter = newValue })).Items;
-        }
-
-
-        private async Task UpdateHQAssigmentAsync()
-        {
-            try
-            {
-                if (await EditingHQAssignedValidations.ValidateAll() == false)
-                {
-                    return;
-                }
-                AddIdentityUserAssigned();
-                EditingHQAssigned.IdentityUserIds = SelectedIdentityAssignedUsers.Select(x => x.Id).ToList();
-                await HQAssignedsAppService.UpdateAsync(EditingHQAssignedId, EditingHQAssigned);
-                await GetHQAssigmentsAsync();
-                await EditHQAssignedModal.Hide();
-            }
-            catch (Exception ex)
-            {
-                await HandleErrorAsync(ex);
-            }
-        }
-
-        private async Task UpdateHQShareAsync()
-        {
-            try
-            {
-                if (await EditingHQShareValidations.ValidateAll() == false)
-                {
-                    return;
-                }
-                foreach(var item in ListHQShare)
-                {
-                    EditingHQShareId = item.HQShare.Id;
-                    EditingHQShare = ObjectMapper.Map<HQShareDto, HQShareUpdateDto>(item.HQShare);
-                    await HQSharesAppService.UpdateAsync(EditingHQShareId, EditingHQShare);
-                    await GetHQSharesAsync();
-                }             
-                await EditHQShareModal.Hide();
-            }
-            catch (Exception ex)
-            {
-                await HandleErrorAsync(ex);
-            }
-        }
-
-        private async Task<bool> CheckShareUserAsync()
-        {
-            List<HQShareDto> hqShareWithParent = await HQSharesAppService.GetParentAsync(Value);
-
-            if (hqShareWithParent != null)
-            {
-                foreach (var item in hqShareWithParent)
-                {                   
-                    if(EditingHQShare.IdentityUserId == item.IdentityUserId)
-                    {
-                        await UiMessageService.Warn(L["ItemAlreadyAdd"]);
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        private void AddIdentityUserAssigned()
-        {
-            if (SelectedIdentityUserId.IsNullOrEmpty())
-            {
-                return;
-            }
-
-            foreach (var item in SelectedIdentityUserId)
-            {
-                if (SelectedIdentityAssignedUsers.Any(p => p.Id.ToString() == item))
-                {
-                    UiMessageService.Warn(L["ItemAlreadyAdded"]);
-                    return;
-                }
-            }
-
-
-            for (int i = 0; i < SelectedIdentityUserId.Count; i++)
-            {
-                Guid userId = Guid.Parse(SelectedIdentityUserId[i]);
-                string userText = SelectedIdentityUserText[i];
-                SelectedIdentityAssignedUsers.Add(new LookupDto<Guid>
-                {
-                    Id = userId,
-                    DisplayName = userText
-                });
+                await hubConnection.DisposeAsync();
             }
         }
 

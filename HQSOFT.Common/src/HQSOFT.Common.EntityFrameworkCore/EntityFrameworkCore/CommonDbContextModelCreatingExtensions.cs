@@ -1,3 +1,4 @@
+using HQSOFT.Common.HQNotifications;
 using HQSOFT.Common.HQShares;
 using HQSOFT.Common.HQAssigneds;
 using Volo.Abp.EntityFrameworkCore.Modeling;
@@ -124,6 +125,22 @@ public static class CommonDbContextModelCreatingExtensions
     b.Property(x => x.CanSubmit).HasColumnName(nameof(HQShare.CanSubmit));
     b.Property(x => x.CanShare).HasColumnName(nameof(HQShare.CanShare));
     b.HasOne<IdentityUser>().WithMany().HasForeignKey(x => x.IdentityUserId).OnDelete(DeleteBehavior.NoAction);
+});
+
+        }
+        if (builder.IsHostDatabase())
+        {
+            builder.Entity<HQNotification>(b =>
+{
+    b.ToTable(CommonDbProperties.DbTablePrefix + "HQNotifications", CommonDbProperties.DbSchema);
+    b.ConfigureByConvention();
+    b.Property(x => x.IDParent).HasColumnName(nameof(HQNotification.IDParent));
+    b.Property(x => x.ToUser).HasColumnName(nameof(HQNotification.ToUser));
+    b.Property(x => x.FromUser).HasColumnName(nameof(HQNotification.FromUser));
+    b.Property(x => x.NotiTitle).HasColumnName(nameof(HQNotification.NotiTitle));
+    b.Property(x => x.NotiBody).HasColumnName(nameof(HQNotification.NotiBody));
+    b.Property(x => x.Type).HasColumnName(nameof(HQNotification.Type));
+    b.Property(x => x.isRead).HasColumnName(nameof(HQNotification.isRead));
 });
 
         }

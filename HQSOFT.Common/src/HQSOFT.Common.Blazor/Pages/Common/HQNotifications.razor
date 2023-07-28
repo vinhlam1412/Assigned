@@ -1,0 +1,275 @@
+@page "/Common/HQNotifications"
+
+
+
+@attribute [Authorize(CommonPermissions.HQNotifications.Default)]
+@using global::HQSOFT.Common.HQNotifications
+@using global::HQSOFT.Common.Localization
+@using global::HQSOFT.Common.Shared
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@using Microsoft.AspNetCore.Components.Web
+@using Blazorise
+@using Blazorise.Components
+@using Blazorise.DataGrid
+@using Volo.Abp.BlazoriseUI
+@using Volo.Abp.BlazoriseUI.Components
+@using Volo.Abp.ObjectMapping
+@using Volo.Abp.AspNetCore.Components.Messages
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
+@using global::HQSOFT.Common.Permissions
+@using Microsoft.AspNetCore.Components
+@using Volo.Abp.AspNetCore.Components.Web
+@using Volo.Abp.Http.Client
+@inherits CommonComponentBase
+@inject IHQNotificationsAppService HQNotificationsAppService
+@inject IUiMessageService UiMessageService
+@inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
+@inject NavigationManager NavigationManager
+
+@* ************************* PAGE HEADER ************************* *@
+<PageHeader Title="@L["HQNotifications"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
+
+</PageHeader>
+
+@* ************************* SEARCH ************************* *@
+<Card>
+    <CardBody>
+        <Form id="HQNotificationSearchForm" class="mb-3">
+            <Addons>
+                <Addon AddonType="AddonType.Body">
+                    <TextEdit @bind-Text="@Filter.FilterText"
+                              Autofocus="true"
+                              Placeholder="@L["Search"]">
+                    </TextEdit>
+                </Addon>
+                <Addon AddonType="AddonType.End">
+                    <SubmitButton Form="HQNotificationSearchForm" Clicked="GetHQNotificationsAsync">
+                        <Icon Name="IconName.Search" Class="me-1"></Icon>@L["Search"]
+                    </SubmitButton>
+                </Addon>
+            </Addons>
+        </Form>
+    </CardBody>
+</Card>
+
+@* ************************* DATA GRID ************************* *@
+<Card>
+    <CardBody>
+        <DataGrid TItem="HQNotificationDto"
+                  Data="HQNotificationList"
+                  ReadData="OnDataGridReadAsync"
+                  TotalItems="TotalCount"
+                  ShowPager="true"
+                  Responsive="true"
+                  PageSize="PageSize">
+            <DataGridColumns>
+                <DataGridEntityActionsColumn TItem="HQNotificationDto" @ref="@EntityActionsColumn">
+                    <DisplayTemplate>
+                        <EntityActions TItem="HQNotificationDto" EntityActionsColumn="@EntityActionsColumn">
+                            <EntityAction TItem="HQNotificationDto"
+                                          Visible="@CanEditHQNotification"
+                                          Clicked="async () => await OpenEditHQNotificationModalAsync(context)"
+                                          Text="@L["Edit"]"></EntityAction>
+                            <EntityAction TItem="HQNotificationDto"
+                                          Visible="@CanDeleteHQNotification"
+                                          Clicked="() => DeleteHQNotificationAsync(context)"
+                                          ConfirmationMessage="@(()=> L["DeleteConfirmationMessage"])"
+                                          Text="@L["Delete"]"></EntityAction>
+                        </EntityActions>
+                    </DisplayTemplate>
+                </DataGridEntityActionsColumn>
+               
+
+
+
+
+
+
+              <DataGridColumn TItem="HQNotificationDto"
+                      Field="NotiTitle"
+                      Caption="@L["NotiTitle"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="HQNotificationDto"
+                      Field="NotiBody"
+                      Caption="@L["NotiBody"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="HQNotificationDto"
+                      Field="Type"
+                      Caption="@L["Type"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="HQNotificationDto"
+                      Field="isRead"
+                      Caption="@L["isRead"]">
+                    <DisplayTemplate>
+                        @if (context.isRead)
+                        {
+                            <Icon TextColor="TextColor.Success" Name="@IconName.Check" />
+                        }
+                        else
+                        {
+                            <Icon TextColor="TextColor.Danger" Name="@IconName.Times" />
+                        }
+                    </DisplayTemplate>
+              </DataGridColumn>
+
+
+            </DataGridColumns>
+        </DataGrid>
+    </CardBody>
+</Card>
+
+@* ************************* CREATE MODAL ************************* *@
+<Modal @ref="CreateHQNotificationModal" Closing="@CreateHQNotificationModal.CancelClosingModalWhenFocusLost">
+    <ModalContent Centered="true">
+        <Form id="CreateHQNotificationForm">
+            <ModalHeader>
+                <ModalTitle>@L["NewHQNotification"]</ModalTitle>
+                <CloseButton Clicked="CloseCreateHQNotificationModalAsync" />
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="@NewHQNotificationValidations"
+                            Mode="ValidationMode.Auto"
+                            Model="@NewHQNotification"
+                            ValidateOnLoad="false">
+                     
+                    
+
+
+
+
+
+
+                    <Validation>
+                        <Field>
+                            <FieldLabel>@L["NotiTitle"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewHQNotification.NotiTitle"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation>
+                        <Field>
+                            <FieldLabel>@L["NotiBody"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewHQNotification.NotiBody"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation>
+                        <Field>
+                            <FieldLabel>@L["Type"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewHQNotification.Type"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Field>
+                        <Check TValue="bool" @bind-Checked="@NewHQNotification.isRead" >@L["isRead"]</Check>
+                    </Field>
+
+                    
+                    
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Color.Secondary"
+                        Clicked="CloseCreateHQNotificationModalAsync">
+                    @L["Cancel"]
+                </Button>
+                <SubmitButton Form="CreateHQNotificationForm" Clicked="CreateHQNotificationAsync" />
+            </ModalFooter>
+        </Form>
+    </ModalContent>
+</Modal>
+
+@* ************************* EDIT MODAL ************************* *@
+<Modal @ref="EditHQNotificationModal" Closing="@EditHQNotificationModal.CancelClosingModalWhenFocusLost">
+    <ModalContent Centered="true">
+        <Form id="EditHQNotificationForm">
+            <ModalHeader>
+                <ModalTitle>@L["Update"]</ModalTitle>
+                <CloseButton Clicked="CloseEditHQNotificationModalAsync" />
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="@EditingHQNotificationValidations"
+                            Mode="ValidationMode.Auto"
+                            Model="@EditingHQNotification"
+                            ValidateOnLoad="false">
+                     
+                    
+
+
+
+
+
+
+                    <Validation>
+                        <Field>
+                            <FieldLabel>@L["NotiTitle"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingHQNotification.NotiTitle"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation>
+                        <Field>
+                            <FieldLabel>@L["NotiBody"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingHQNotification.NotiBody"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation>
+                        <Field>
+                            <FieldLabel>@L["Type"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingHQNotification.Type"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Field>
+                        <Check TValue="bool" @bind-Checked="@EditingHQNotification.isRead" >@L["isRead"]</Check>
+                    </Field>
+
+                    
+                    
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Color.Secondary"
+                        Clicked="CloseEditHQNotificationModalAsync">
+                    @L["Cancel"]
+                </Button>
+                <SubmitButton Form="CreateHQNotificationForm" Clicked="UpdateHQNotificationAsync" />
+            </ModalFooter>
+        </Form>
+    </ModalContent>
+</Modal>
